@@ -7,7 +7,7 @@ import {
   Post,
 } from '@nestjs/common';
 import { FormService } from './form.service';
-import { CreateFormDto } from './dto/create-form.dto';
+import { SubmitFormDto } from './dto/submit-form.dto';
 import { SubmitFormResponse } from './responses/submit-form.response';
 
 @Controller('form')
@@ -17,7 +17,7 @@ export class FormController {
   @Post()
   @HttpCode(HttpStatus.CREATED)
   async submitForm(
-    @Body() createFormDto: CreateFormDto,
+    @Body() createFormDto: SubmitFormDto,
   ): Promise<SubmitFormResponse> {
     return {
       statusCode: HttpStatus.CREATED,

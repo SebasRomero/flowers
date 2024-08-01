@@ -1,7 +1,7 @@
 import { Form } from '../entities/form.entity';
-import { CreateFormDto } from './create-form.dto';
+import { SubmitFormDto } from './submit-form.dto';
 
-export class SubmitFormResponseDto extends CreateFormDto {
+export class SubmitFormResponseDto extends SubmitFormDto {
   id: number;
 
   static mapToResponse(form: Form): SubmitFormResponseDto {
@@ -9,6 +9,10 @@ export class SubmitFormResponseDto extends CreateFormDto {
       id: form.id,
       name: form.name,
       email: form.email,
+      phone: form.phone,
+      numberOfPersons: form.numberOfPersons,
+      tourName: form.tourName,
+      dateStartingTour: form.dateStartingTour,
     };
   }
 }

@@ -5,6 +5,8 @@ import { FormModule } from './form/form.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Form } from './form/entities/form.entity';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { MailService } from './mail/mail.service';
+import { MailModule } from './mail/mail.module';
 
 @Module({
   imports: [
@@ -26,8 +28,9 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
       inject: [ConfigService],
     }),
     FormModule,
+    MailModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, MailService],
 })
 export class AppModule {}

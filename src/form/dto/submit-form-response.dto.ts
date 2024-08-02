@@ -1,12 +1,14 @@
-import { Form } from '../entities/form.entity';
+import { Types } from 'mongoose';
+
 import { SubmitFormDto } from './submit-form.dto';
+import { IForm } from '../types/form.interface';
 
 export class SubmitFormResponseDto extends SubmitFormDto {
-  id: number;
+  id: Types.ObjectId;
 
-  static mapToResponse(form: Form): SubmitFormResponseDto {
+  static mapToResponse(form: IForm): SubmitFormResponseDto {
     return {
-      id: form.id,
+      id: form._id,
       name: form.name,
       email: form.email,
       phone: form.phone,

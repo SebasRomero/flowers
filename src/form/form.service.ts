@@ -1,21 +1,21 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Form } from './entities/form.entity';
-import { Repository } from 'typeorm';
+import { Form } from './schemas/form.schema';
 import { SubmitFormDto } from './dto/submit-form.dto';
 import { SubmitFormResponseDto } from './dto/submit-form-response.dto';
 import { MailService } from 'src/mail/mail.service';
 import { TourNames } from './types/submit-form.types';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
 
 @Injectable()
 export class FormService {
   constructor(
-    @InjectRepository(Form) private formRepository: Repository<Form>,
+    @InjectModel(Form.name) private formModel: Model<Form>,
     private mailService: MailService,
   ) {}
 
   findAll(): Promise<Form[]> {
-    return this.formRepository.find();
+    return this.formModel.find();
   }
 
   async submitForm(form: SubmitFormDto): Promise<SubmitFormResponseDto> {
@@ -34,7 +34,7 @@ export class FormService {
         HttpStatus.BAD_REQUEST,
       );
 
-    const createdForm = await this.formRepository.save(refactoredForm);
+    const createdForm = await this.formModel.create(refactoredForm);
     // this.mailService.sendEmail();
     return SubmitFormResponseDto.mapToResponse(createdForm);
   }

@@ -35,7 +35,7 @@ export class FormService {
       );
 
     const createdForm = await this.formRepository.save(refactoredForm);
-    this.mailService.sendEmail();
+    // this.mailService.sendEmail();
     return SubmitFormResponseDto.mapToResponse(createdForm);
   }
 }

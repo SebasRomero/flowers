@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { IInfoForm } from 'src/form/dto/info-form.dto';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const Mailjet = require('node-mailjet');
@@ -7,7 +8,7 @@ const Mailjet = require('node-mailjet');
 @Injectable()
 export class MailService {
   constructor(private configService: ConfigService) {}
-  sendEmail(email: string) {
+  sendEmail(infoForm: IInfoForm) {
     const mailjet = Mailjet.apiConnect(
       this.configService.get('API_KEY_MAIL'),
       this.configService.get('SECRET_KEY_MAIL'),
@@ -23,15 +24,14 @@ export class MailService {
           },
           To: [
             {
-              Email: email,
-              Name: 'Elias',
+              Email: infoForm.email,
+              Name: infoForm.name,
             },
           ],
-          Subject: 'Your gmail flight plan!',
-          TextPart:
-            'Dear passenger 1, welcome to Mailjet! May the delivery force be with you!',
-          HTMLPart:
-            '<h3>Dear passenger 1, welcome to <a href="https://www.mailjet.com/">Mailjet</a>!</h3><br />May the delivery force be with you!',
+          Subject: 'Your tour!',
+          TextPart: `tour: ${infoForm.tourName}
+            starts: ${infoForm.dateStartingTour}`,
+          HTMLPart: '<h3>Test/h3><br />Test',
         },
       ],
     });

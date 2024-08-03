@@ -6,6 +6,7 @@ import { MailService } from 'src/mail/mail.service';
 import { TourNames } from './types/submit-form.types';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { capitalizeFirstLetter } from 'src/utils/utils';
 
 @Injectable()
 export class FormService {
@@ -35,7 +36,14 @@ export class FormService {
       );
 
     const createdForm = await this.formModel.create(refactoredForm);
-    this.mailService.sendEmail(refactoredForm.email);
+
+    this.mailService.sendEmail({
+      email: refactoredForm.email,
+      name: capitalizeFirstLetter(refactoredForm.name),
+      tourName: refactoredForm.tourName,
+      dateStartingTour: refactoredForm.dateStartingTour,
+    });
+
     return SubmitFormResponseDto.mapToResponse(createdForm);
   }
 }

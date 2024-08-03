@@ -7,7 +7,7 @@ const Mailjet = require('node-mailjet');
 @Injectable()
 export class MailService {
   constructor(private configService: ConfigService) {}
-  sendEmail() {
+  sendEmail(email: string) {
     const mailjet = Mailjet.apiConnect(
       this.configService.get('API_KEY_MAIL'),
       this.configService.get('SECRET_KEY_MAIL'),
@@ -23,7 +23,7 @@ export class MailService {
           },
           To: [
             {
-              Email: 'romeringonzales@gmail.com',
+              Email: email,
               Name: 'Elias',
             },
           ],

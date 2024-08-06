@@ -1,6 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { IInfoForm } from 'src/form/dto/info-form.dto';
+import { htmlMessage, plainMessage } from './messages/messages';
+
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const Mailjet = require('node-mailjet');
@@ -29,9 +31,8 @@ export class MailService {
             },
           ],
           Subject: 'Your tour!',
-          TextPart: `tour: ${infoForm.tourName}
-            starts: ${infoForm.dateStartingTour}`,
-          HTMLPart: '<h3>Test/h3><br />Test',
+          TextPart: plainMessage(infoForm),
+          HTMLPart: htmlMessage(infoForm),
         },
       ],
     });
@@ -41,7 +42,7 @@ export class MailService {
         console.log(result.body);
       })
       .catch((err) => {
-        console.log(err.statusCode);
+        console.log(err);
       });
   }
 }

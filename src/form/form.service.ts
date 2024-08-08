@@ -6,11 +6,12 @@ import { MailService } from 'src/mail/mail.service';
 import { TourNames } from './types/submit-form.types';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { capitalizeFirstLetter } from 'src/utils/utils';
+import { UtilitiesService } from 'src/utilities/utilities.service';
 
 @Injectable()
 export class FormService {
   constructor(
+    private utilitiesService: UtilitiesService,
     @InjectModel(Form.name) private formModel: Model<Form>,
     private mailService: MailService,
   ) {}
@@ -39,7 +40,7 @@ export class FormService {
 
     this.mailService.sendEmail({
       email: refactoredForm.email,
-      name: capitalizeFirstLetter(refactoredForm.name),
+      name: this.utilitiesService.capitalizeFirstLetter(refactoredForm.name),
       tourName: refactoredForm.tourName,
       dateStartingTour: refactoredForm.dateStartingTour,
     });

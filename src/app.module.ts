@@ -3,9 +3,12 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { FormModule } from './form/form.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { MailService } from './mail/mail.service';
 import { MailModule } from './mail/mail.module';
 import { MongooseModule } from '@nestjs/mongoose';
+import { AuthModule } from './auth/auth.module';
+import { UsersModule } from './users/users.module';
+import { UtilitiesModule } from './utilities/utilities.module';
+import { DashboardModule } from './dashboard/dashboard.module';
 
 @Module({
   imports: [
@@ -21,8 +24,12 @@ import { MongooseModule } from '@nestjs/mongoose';
     }),
     FormModule,
     MailModule,
+    AuthModule,
+    UsersModule,
+    UtilitiesModule,
+    DashboardModule,
   ],
   controllers: [AppController],
-  providers: [AppService, MailService],
+  providers: [AppService],
 })
 export class AppModule {}

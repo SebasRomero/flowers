@@ -1,11 +1,12 @@
-import { Controller, Get, Request, UseGuards } from '@nestjs/common';
-import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
+import { Controller, Get, Req } from '@nestjs/common';
+import { Roles } from 'src/auth/decorators/roles.decorator';
+import { Role } from 'src/auth/enums/role.enum';
 
 @Controller('dashboard')
 export class DashboardController {
-  @UseGuards(JwtAuthGuard)
   @Get()
-  getProfile(@Request() req) {
-    return 'Hey there!';
+  @Roles(Role.Admin)
+  getDashboard(@Req() req) {
+    return 'Hey there! ' + req.user.username;
   }
 }

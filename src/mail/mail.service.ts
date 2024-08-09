@@ -3,7 +3,6 @@ import { ConfigService } from '@nestjs/config';
 import { IInfoForm } from 'src/form/dto/info-form.dto';
 import { htmlMessage, plainMessage } from './messages/messages';
 
-
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const Mailjet = require('node-mailjet');
 
@@ -36,13 +35,5 @@ export class MailService {
         },
       ],
     });
-
-    request
-      .then((result) => {
-        console.log(result.body);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
   }
 }

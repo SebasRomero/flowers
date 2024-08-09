@@ -17,7 +17,7 @@ export class AuthService {
   ) {}
 
   async signUp(createUser: CreateUserDto): Promise<SignUpResponseDto> {
-    const { username, password } = createUser;
+    const { username, password, role } = createUser;
     const user = await this.userModel.findOne({ username: username });
 
     if (user)
@@ -28,6 +28,7 @@ export class AuthService {
     const createdUser = await this.userModel.create({
       username: username,
       password: hashedPassword,
+      roles: role,
     });
 
     return this.getAccessToken({
@@ -50,11 +51,16 @@ export class AuthService {
     return {
       _id: user._id,
       username: user.username,
+      roles: user.roles,
     };
   }
 
   login(user: any): LoginResponseDto {
-    const payload = { username: user.username, sub: user._id };
+    const payload = {
+      username: user.username,
+      sub: user._id,
+      roles: user.roles,
+    };
     return this.getAccessToken(payload);
   }
 

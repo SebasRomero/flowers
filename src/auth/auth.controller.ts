@@ -1,11 +1,19 @@
-import { Body, Controller, Post, Request, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  HttpStatus,
+  Post,
+  Request,
+  UseGuards,
+} from '@nestjs/common';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 import { AuthService } from './auth.service';
 import { CreateUserDto } from './dto/create-user.dto';
-import { LoginResponseDto } from './dto/login-response.dto';
 import { Public } from './decorators/public.decorator';
 import { Roles } from './decorators/roles.decorator';
 import { Role } from './enums/role.enum';
+import { AuthLoginResponse } from './responses/auth-login.response';
+import { AuthSignUpResponse } from './responses/auth-signup.response';
 
 @Controller('auth')
 export class AuthController {
@@ -13,13 +21,21 @@ export class AuthController {
   @Post('login')
   @Public()
   @UseGuards(LocalAuthGuard)
-  login(@Request() req): LoginResponseDto {
-    return this.authService.login(req.user);
+  login(@Request() req): AuthLoginResponse {
+    return {
+      statusCode: HttpStatus.OK,
+      message: 'Logged in',
+      data: this.authService.login(req.user),
+    };
   }
 
   @Post('signup')
   @Roles(Role.Admin)
-  signup(@Body() createUser: CreateUserDto) {
-    return this.authService.signUp(createUser);
+  async signup(@Body() createUser: CreateUserDto): Promise<AuthSignUpResponse> {
+    return {
+      statusCode: HttpStatus.OK,
+      message: 'Signed up',
+      data: await this.authService.signUp(createUser),
+    };
   }
 }

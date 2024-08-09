@@ -16,7 +16,7 @@ export class MailService {
       { config: {}, options: {} },
     );
 
-    const request = mailjet.post('send', { version: 'v3.1' }).request({
+    mailjet.post('send', { version: 'v3.1' }).request({
       Messages: [
         {
           From: {

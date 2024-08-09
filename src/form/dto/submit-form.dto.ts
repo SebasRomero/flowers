@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { TourNames } from '../types/submit-form.types';
+import { TourNames, ToursArray } from '../types/submit-form.types';
 import { IsEmail, IsNotEmpty } from 'class-validator';
 
 export class SubmitFormDto {
@@ -25,7 +25,7 @@ export class SubmitFormDto {
 
   @ApiProperty({
     description: 'The type of tour or name.',
-    enum: ['TOUR1, TOUR2'],
+    enum: ToursArray,
   })
   @IsNotEmpty()
   tourName: TourNames;

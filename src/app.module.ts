@@ -1,36 +1,37 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { FormModule } from './form/form.module';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { Form } from './form/entities/form.entity';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { MailService } from './mail/mail.service';
 import { MailModule } from './mail/mail.module';
-
+import { MongooseModule } from '@nestjs/mongoose';
+import { AuthModule } from './auth/auth.module';
+import { UsersModule } from './users/users.module';
+import { UtilitiesModule } from './utilities/utilities.module';
+import { DashboardModule } from './dashboard/dashboard.module';
+import { RolesGuard } from './auth/guards/roles.guard';
+import { APP_GUARD } from '@nestjs/core';
+import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
     }),
-    TypeOrmModule.forRootAsync({
+    MongooseModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
-        type: 'mysql',
-        host: configService.get<string>('DB_HOST'),
-        port: configService.get<number>('DB_PORT'),
-        username: configService.get<string>('DB_USERNAME'),
-        password: configService.get<string>('DB_PASSWORD'),
-        database: configService.get<string>('DB_NAME'),
-        entities: [Form],
-        synchronize: true, // false in prod
+        uri: configService.get<string>('DB_URI'),
       }),
       inject: [ConfigService],
     }),
     FormModule,
     MailModule,
+    AuthModule,
+    UsersModule,
+    UtilitiesModule,
+    DashboardModule,
   ],
-  controllers: [AppController],
-  providers: [AppService, MailService],
+  providers: [
+    { provide: APP_GUARD, useClass: JwtAuthGuard },
+    { provide: APP_GUARD, useClass: RolesGuard },
+  ],
 })
 export class AppModule {}

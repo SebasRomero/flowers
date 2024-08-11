@@ -14,6 +14,7 @@ import { Roles } from './decorators/roles.decorator';
 import { Role } from './enums/role.enum';
 import { AuthLoginResponse } from './responses/auth-login.response';
 import { AuthSignUpResponse } from './responses/auth-signup.response';
+import { LoginUserDto } from './dto/login-user.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -21,7 +22,7 @@ export class AuthController {
   @Post('login')
   @Public()
   @UseGuards(LocalAuthGuard)
-  login(@Request() req): AuthLoginResponse {
+  login(@Request() req, @Body() loginUserDto: LoginUserDto): AuthLoginResponse {
     return {
       statusCode: HttpStatus.OK,
       message: 'Logged in',

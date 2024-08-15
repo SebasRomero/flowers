@@ -1,4 +1,4 @@
-export interface IInfoForm {
+export interface IInfoRegularForm {
   name: string;
   email: string;
   tourName: string;

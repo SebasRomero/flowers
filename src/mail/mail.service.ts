@@ -1,7 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { IInfoForm } from 'src/form/dto/info-form.dto';
-import { htmlMessage, plainMessage } from './messages/messages';
+import { IInfoRegularForm } from 'src/form/dto/info-form.dto';
+import {
+  htmlMessageContact,
+  htmlMessageForm,
+  plainMessageContact,
+  plainMessageForm,
+} from './messages/messages';
+import { IInfoContactForm } from 'src/contact/dto/info-contact.dto';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const Mailjet = require('node-mailjet');
@@ -9,14 +15,14 @@ const Mailjet = require('node-mailjet');
 @Injectable()
 export class MailService {
   constructor(private configService: ConfigService) {}
-  sendEmail(infoForm: IInfoForm) {
-    const mailjet = Mailjet.apiConnect(
-      this.configService.get('API_KEY_MAIL'),
-      this.configService.get('SECRET_KEY_MAIL'),
-      { config: {}, options: {} },
-    );
+  private mailjet = Mailjet.apiConnect(
+    this.configService.get('API_KEY_MAIL'),
+    this.configService.get('SECRET_KEY_MAIL'),
+    { config: {}, options: {} },
+  );
 
-    mailjet.post('send', { version: 'v3.1' }).request({
+  sendRegularFormEmail(infoForm: IInfoRegularForm) {
+    this.mailjet.post('send', { version: 'v3.1' }).request({
       Messages: [
         {
           From: {
@@ -30,8 +36,30 @@ export class MailService {
             },
           ],
           Subject: 'Your tour!',
-          TextPart: plainMessage(infoForm),
-          HTMLPart: htmlMessage(infoForm),
+          TextPart: plainMessageForm(infoForm),
+          HTMLPart: htmlMessageForm(infoForm),
+        },
+      ],
+    });
+  }
+
+  sendContactEmail(infoContactForm: IInfoContactForm) {
+    this.mailjet.post('send', { version: 'v3.1' }).request({
+      Messages: [
+        {
+          From: {
+            Email: 'sebastian_eromero@hotmail.com',
+            Name: 'Sebastian',
+          },
+          To: [
+            {
+              Email: infoContactForm.email,
+              Name: infoContactForm.name,
+            },
+          ],
+          Subject: 'Your tour!',
+          TextPart: plainMessageContact(infoContactForm),
+          HTMLPart: htmlMessageContact(infoContactForm),
         },
       ],
     });

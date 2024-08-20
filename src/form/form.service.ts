@@ -38,7 +38,7 @@ export class FormService {
 
     const createdForm = await this.formModel.create(refactoredForm);
 
-    this.mailService.sendEmail({
+    this.mailService.sendRegularFormEmail({
       email: refactoredForm.email,
       name: this.utilitiesService.capitalizeFirstLetter(refactoredForm.name),
       tourName: refactoredForm.tourName,

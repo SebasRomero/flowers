@@ -7,6 +7,8 @@ import { TourNames } from './types/submit-form.types';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { UtilitiesService } from 'src/utilities/utilities.service';
+import { IForm } from './types/form.interface';
+import { BookingStatus } from './types/booking-status';
 
 @Injectable()
 export class FormService {
@@ -21,13 +23,15 @@ export class FormService {
   }
 
   async submitForm(form: SubmitFormDto): Promise<SubmitFormResponseDto> {
-    const refactoredForm: SubmitFormDto = {
+    const refactoredForm: IForm = {
       email: form.email.toLowerCase(),
       name: form.name.toLowerCase(),
       dateStartingTour: form.dateStartingTour,
       numberOfPersons: form.numberOfPersons,
       phone: form.phone,
       tourName: form.tourName,
+      status: BookingStatus.CASE1,
+      orderNumber: this.utilitiesService.generateOrderNumber(),
     };
 
     if (!Object.values(TourNames).includes(form.tourName))

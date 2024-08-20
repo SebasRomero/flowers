@@ -5,6 +5,7 @@ import { IForm } from '../types/form.interface';
 
 export class SubmitFormResponseDto extends SubmitFormDto {
   id: Types.ObjectId;
+  orderNumber: string;
 
   static mapToResponse(form: IForm): SubmitFormResponseDto {
     return {
@@ -15,6 +16,7 @@ export class SubmitFormResponseDto extends SubmitFormDto {
       numberOfPersons: form.numberOfPersons,
       tourName: form.tourName,
       dateStartingTour: form.dateStartingTour,
+      orderNumber: form.orderNumber,
     };
   }
 }

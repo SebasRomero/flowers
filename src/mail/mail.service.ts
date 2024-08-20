@@ -8,26 +8,27 @@ import {
   plainMessageForm,
 } from './messages/messages';
 import { IInfoContactForm } from 'src/contact/dto/info-contact.dto';
+import { senderEmail, senderName } from './types/constants';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const Mailjet = require('node-mailjet');
 
 @Injectable()
 export class MailService {
-  constructor(private configService: ConfigService) {}
   private mailjet = Mailjet.apiConnect(
     this.configService.get('API_KEY_MAIL'),
     this.configService.get('SECRET_KEY_MAIL'),
     { config: {}, options: {} },
   );
+  constructor(private configService: ConfigService) {}
 
   sendRegularFormEmail(infoForm: IInfoRegularForm) {
     this.mailjet.post('send', { version: 'v3.1' }).request({
       Messages: [
         {
           From: {
-            Email: 'sebastian_eromero@hotmail.com',
-            Name: 'Sebastian',
+            Email: senderEmail,
+            Name: senderName,
           },
           To: [
             {
@@ -48,8 +49,8 @@ export class MailService {
       Messages: [
         {
           From: {
-            Email: 'sebastian_eromero@hotmail.com',
-            Name: 'Sebastian',
+            Email: senderEmail,
+            Name: senderName,
           },
           To: [
             {
@@ -57,7 +58,7 @@ export class MailService {
               Name: infoContactForm.name,
             },
           ],
-          Subject: 'Your tour!',
+          Subject: 'Hey!',
           TextPart: plainMessageContact(infoContactForm),
           HTMLPart: htmlMessageContact(infoContactForm),
         },

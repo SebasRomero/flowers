@@ -1,4 +1,4 @@
-import { Controller, Get, HttpStatus, Param, Post, Put } from '@nestjs/common';
+import { Controller, Get, HttpStatus, Param, Put } from '@nestjs/common';
 import { Roles } from 'src/auth/decorators/roles.decorator';
 import { Role } from 'src/auth/enums/role.enum';
 import { DashboardService } from './dashboard.service';
@@ -15,6 +15,18 @@ export class DashboardController {
       statusCode: HttpStatus.OK,
       message: 'Ok',
       data: await this.dashBoardService.getBookings(),
+    };
+  }
+
+  @Get(':id')
+  @Roles(Role.Admin)
+  async getBooking(
+    @Param('id') id: string,
+  ): Promise<GetBookingTourFormResponse> {
+    return {
+      statusCode: HttpStatus.OK,
+      message: 'Ok',
+      data: await this.dashBoardService.getBooking(id),
     };
   }
 

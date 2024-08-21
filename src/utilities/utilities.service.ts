@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { hash, compare } from 'bcrypt';
+import { randomUUID } from 'crypto';
 
 @Injectable()
 export class UtilitiesService {
@@ -19,5 +20,15 @@ export class UtilitiesService {
     hashedPassword: string,
   ): Promise<boolean> {
     return await compare(password, hashedPassword);
+  }
+
+  generateOrderNumber(): string {
+    const date = new Date();
+    return (
+      date.getDate().toString() +
+      date.getMonth().toString() +
+      date.getFullYear().toString().substring(2) +
+      randomUUID().substring(25, 30)
+    );
   }
 }

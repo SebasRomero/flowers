@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { FormModule } from './form/form.module';
+import { BookingModule } from './booking/booking.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MailModule } from './mail/mail.module';
 import { MongooseModule } from '@nestjs/mongoose';
@@ -23,7 +23,7 @@ import { ContactModule } from './contact/contact.module';
       }),
       inject: [ConfigService],
     }),
-    FormModule,
+    BookingModule,
     MailModule,
     AuthModule,
     UsersModule,

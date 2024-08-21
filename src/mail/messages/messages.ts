@@ -1,7 +1,7 @@
 import { IInfoContactForm } from 'src/contact/dto/info-contact.dto';
-import { IInfoRegularForm } from 'src/form/dto/info-form.dto';
+import { IInfoBooking } from 'src/booking/dto/info-booking.dto';
 
-export function htmlMessageForm(infoForm: IInfoRegularForm) {
+export function htmlMessageForm(infoForm: IInfoBooking) {
   return `
 <!doctype html>
 <html lang="en" dir="auto" xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
@@ -344,7 +344,7 @@ export function htmlMessageForm(infoForm: IInfoRegularForm) {
 `;
 }
 
-export function plainMessageForm(infoForm: IInfoRegularForm) {
+export function plainMessageForm(infoForm: IInfoBooking) {
   return `
     Hi, ${infoForm.name}!
 Thank you for choosing Diamond Transfers for your tour experience! We are excited to help you explore the beautiful Dominican Republic.

@@ -23,9 +23,12 @@ export class UtilitiesService {
   }
 
   generateOrderNumber(): string {
-    const date = new Date().valueOf().toString();
+    const date = new Date();
     return (
-      date.substring(0, 5) + randomUUID().substring(24) + date.substring(5, 9)
+      date.getDate().toString() +
+      date.getMonth().toString() +
+      date.getFullYear().toString().substring(2) +
+      randomUUID().substring(25, 30)
     );
   }
 }

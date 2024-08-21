@@ -1,8 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { TourNames, ToursArray } from '../types/submit-form.types';
+import { TourNames, ToursArray } from '../types/submit-booking.types';
 import { IsEmail, IsNotEmpty } from 'class-validator';
 
-export class SubmitFormDto {
+export class SubmitBookingDto {
   @ApiProperty({ description: 'The name of the person.', type: String })
   @IsNotEmpty()
   name: string;

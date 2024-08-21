@@ -1,13 +1,13 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import mongoose, { Model } from 'mongoose';
-import { Form } from 'src/form/schemas/form.schema';
-import { BookingStatus } from 'src/form/types/booking-status';
+import { Booking } from 'src/booking/schemas/booking.schema';
+import { BookingStatus } from 'src/booking/types/booking-status';
 
 @Injectable()
 export class DashboardService {
   constructor(
-    @InjectModel(Form.name) private readonly bookingModel: Model<Form>,
+    @InjectModel(Booking.name) private readonly bookingModel: Model<Booking>,
   ) {}
 
   async getBookings() {

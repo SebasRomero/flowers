@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { IInfoRegularForm } from 'src/form/dto/info-form.dto';
+import { IInfoBooking } from 'src/booking/dto/info-booking.dto';
 import {
   htmlMessageContact,
   htmlMessageForm,
@@ -22,7 +22,7 @@ export class MailService {
   );
   constructor(private configService: ConfigService) {}
 
-  sendRegularFormEmail(infoForm: IInfoRegularForm) {
+  sendRegularFormEmail(infoBooking: IInfoBooking) {
     this.mailjet.post('send', { version: 'v3.1' }).request({
       Messages: [
         {
@@ -32,13 +32,13 @@ export class MailService {
           },
           To: [
             {
-              Email: infoForm.email,
-              Name: infoForm.name,
+              Email: infoBooking.email,
+              Name: infoBooking.name,
             },
           ],
           Subject: 'Your tour!',
-          TextPart: plainMessageForm(infoForm),
-          HTMLPart: htmlMessageForm(infoForm),
+          TextPart: plainMessageForm(infoBooking),
+          HTMLPart: htmlMessageForm(infoBooking),
         },
       ],
     });

@@ -1,11 +1,11 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { TourNames } from '../types/submit-form.types';
+import { TourNames } from '../types/submit-booking.types';
 import { HydratedDocument } from 'mongoose';
 import { BookingStatus } from '../types/booking-status';
 
-export type FormDocument = HydratedDocument<Form>;
+export type BookingDocument = HydratedDocument<Booking>;
 @Schema({ versionKey: false })
-export class Form {
+export class Booking {
   @Prop()
   name: string;
 
@@ -31,4 +31,4 @@ export class Form {
   orderNumber: string;
 }
 
-export const FormSchema = SchemaFactory.createForClass(Form);
+export const BookingSchema = SchemaFactory.createForClass(Booking);

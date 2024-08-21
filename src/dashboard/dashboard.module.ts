@@ -2,10 +2,12 @@ import { Module } from '@nestjs/common';
 import { DashboardService } from './dashboard.service';
 import { DashboardController } from './dashboard.controller';
 import { MongooseModule } from '@nestjs/mongoose';
-import { Form } from 'src/form/schemas/form.schema';
+import { Booking, BookingSchema } from 'src/booking/schemas/booking.schema';
 
 @Module({
-  imports: [MongooseModule.forFeature([{ name: Form.name, schema: Form }])],
+  imports: [
+    MongooseModule.forFeature([{ name: Booking.name, schema: BookingSchema }]),
+  ],
   providers: [DashboardService],
   controllers: [DashboardController],
 })

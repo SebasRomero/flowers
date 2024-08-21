@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
-import { FormService } from './form.service';
-import { FormController } from './form.controller';
-import { Form, FormSchema } from './schemas/form.schema';
+import { BookingService } from './booking.service';
+import { BookingController } from './booking.controller';
+import { Booking, BookingSchema } from './schemas/booking.schema';
 import { MailModule } from 'src/mail/mail.module';
 import { MailService } from 'src/mail/mail.service';
 import { MongooseModule } from '@nestjs/mongoose';
@@ -10,11 +10,11 @@ import { UtilitiesModule } from 'src/utilities/utilities.module';
 
 @Module({
   imports: [
-    MongooseModule.forFeature([{ name: Form.name, schema: FormSchema }]),
+    MongooseModule.forFeature([{ name: Booking.name, schema: BookingSchema }]),
     MailModule,
     UtilitiesModule,
   ],
-  providers: [FormService, MailService, UtilitiesService],
-  controllers: [FormController],
+  providers: [BookingService, MailService, UtilitiesService],
+  controllers: [BookingController],
 })
-export class FormModule {}
+export class BookingModule {}

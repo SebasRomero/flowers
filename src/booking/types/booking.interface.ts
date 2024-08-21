@@ -1,8 +1,8 @@
 import { Types } from 'mongoose';
-import { TourNames } from './submit-form.types';
+import { TourNames } from './submit-booking.types';
 import { BookingStatus } from './booking-status';
 
-export interface IForm {
+export interface IBooking {
   _id?: Types.ObjectId;
   orderNumber: string;
   name: string;

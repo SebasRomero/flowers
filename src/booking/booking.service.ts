@@ -1,29 +1,29 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { Form } from './schemas/form.schema';
-import { SubmitFormDto } from './dto/submit-form.dto';
-import { SubmitFormResponseDto } from './dto/submit-form-response.dto';
+import { Booking } from './schemas/booking.schema';
+import { SubmitBookingDto } from './dto/submit-booking.dto';
+import { SubmitBookingResponseDto } from './dto/submit-booking-response.dto';
 import { MailService } from 'src/mail/mail.service';
-import { TourNames } from './types/submit-form.types';
+import { TourNames } from './types/submit-booking.types';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { UtilitiesService } from 'src/utilities/utilities.service';
-import { IForm } from './types/form.interface';
+import { IBooking } from './types/booking.interface';
 import { BookingStatus } from './types/booking-status';
 
 @Injectable()
-export class FormService {
+export class BookingService {
   constructor(
     private utilitiesService: UtilitiesService,
-    @InjectModel(Form.name) private formModel: Model<Form>,
+    @InjectModel(Booking.name) private bookingModel: Model<Booking>,
     private mailService: MailService,
   ) {}
 
-  findAll(): Promise<Form[]> {
-    return this.formModel.find();
+  findAll(): Promise<Booking[]> {
+    return this.bookingModel.find();
   }
 
-  async submitForm(form: SubmitFormDto): Promise<SubmitFormResponseDto> {
-    const refactoredForm: IForm = {
+  async submitForm(form: SubmitBookingDto): Promise<SubmitBookingResponseDto> {
+    const refactoredForm: IBooking = {
       email: form.email.toLowerCase(),
       name: form.name.toLowerCase(),
       dateStartingTour: form.dateStartingTour,
@@ -40,7 +40,7 @@ export class FormService {
         HttpStatus.BAD_REQUEST,
       );
 
-    const createdForm = await this.formModel.create(refactoredForm);
+    const createdForm = await this.bookingModel.create(refactoredForm);
 
     this.mailService.sendRegularFormEmail({
       email: refactoredForm.email,
@@ -49,6 +49,6 @@ export class FormService {
       dateStartingTour: refactoredForm.dateStartingTour,
     });
 
-    return SubmitFormResponseDto.mapToResponse(createdForm);
+    return SubmitBookingResponseDto.mapToResponse(createdForm);
   }
 }

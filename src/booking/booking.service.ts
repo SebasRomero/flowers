@@ -22,33 +22,35 @@ export class BookingService {
     return this.bookingModel.find();
   }
 
-  async submitForm(form: SubmitBookingDto): Promise<SubmitBookingResponseDto> {
-    const refactoredForm: IBooking = {
-      email: form.email.toLowerCase(),
-      name: form.name.toLowerCase(),
-      dateStartingTour: form.dateStartingTour,
-      numberOfPersons: form.numberOfPersons,
-      phone: form.phone,
-      tourName: form.tourName,
+  async submitBooking(
+    booking: SubmitBookingDto,
+  ): Promise<SubmitBookingResponseDto> {
+    const refactoredBooking: IBooking = {
+      email: booking.email.toLowerCase(),
+      name: booking.name.toLowerCase(),
+      dateStartingTour: booking.dateStartingTour,
+      numberOfPersons: booking.numberOfPersons,
+      phone: booking.phone,
+      tourName: booking.tourName,
       status: BookingStatus.CASE1,
       orderNumber: this.utilitiesService.generateOrderNumber(),
     };
 
-    if (!Object.values(TourNames).includes(form.tourName))
+    if (!Object.values(TourNames).includes(booking.tourName))
       throw new HttpException(
         'Tour name should be correct',
         HttpStatus.BAD_REQUEST,
       );
 
-    const createdForm = await this.bookingModel.create(refactoredForm);
+    const createdBooking = await this.bookingModel.create(refactoredBooking);
 
-    this.mailService.sendRegularFormEmail({
-      email: refactoredForm.email,
-      name: this.utilitiesService.capitalizeFirstLetter(refactoredForm.name),
-      tourName: refactoredForm.tourName,
-      dateStartingTour: refactoredForm.dateStartingTour,
+    this.mailService.sendBookingEmail({
+      email: refactoredBooking.email,
+      name: this.utilitiesService.capitalizeFirstLetter(refactoredBooking.name),
+      tourName: refactoredBooking.tourName,
+      dateStartingTour: refactoredBooking.dateStartingTour,
     });
 
-    return SubmitBookingResponseDto.mapToResponse(createdForm);
+    return SubmitBookingResponseDto.mapToResponse(createdBooking);
   }
 }

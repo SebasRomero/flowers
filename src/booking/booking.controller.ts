@@ -6,18 +6,18 @@ import { Public } from 'src/auth/decorators/public.decorator';
 
 @Controller('booking')
 export class BookingController {
-  constructor(private formService: BookingService) {}
+  constructor(private bookingService: BookingService) {}
 
   @Post()
   @Public()
   @HttpCode(HttpStatus.CREATED)
-  async submitForm(
-    @Body() createFormDto: SubmitBookingDto,
+  async submitBooking(
+    @Body() createBookingDto: SubmitBookingDto,
   ): Promise<SubmitBookingResponse> {
     return {
       statusCode: HttpStatus.CREATED,
       message: 'Message',
-      data: await this.formService.submitForm(createFormDto),
+      data: await this.bookingService.submitBooking(createBookingDto),
     };
   }
 }

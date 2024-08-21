@@ -22,7 +22,7 @@ export class MailService {
   );
   constructor(private configService: ConfigService) {}
 
-  sendRegularFormEmail(infoBooking: IInfoBooking) {
+  sendBookingEmail(infoBooking: IInfoBooking) {
     this.mailjet.post('send', { version: 'v3.1' }).request({
       Messages: [
         {

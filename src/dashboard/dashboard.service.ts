@@ -16,6 +16,10 @@ export class DashboardService {
       .lean();
   }
 
+  async getBooking(id: string) {
+    return await this.bookingModel.findOne({ orderNumber: id }).lean();
+  }
+
   async getArchivedBookings() {
     return await this.bookingModel.find({
       status: { $ne: BookingStatus.Archived },

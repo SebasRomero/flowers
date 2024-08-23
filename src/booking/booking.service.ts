@@ -34,6 +34,7 @@ export class BookingService {
       tourName: booking.tourName,
       status: BookingStatus.CASE1,
       orderNumber: this.utilitiesService.generateOrderNumber(),
+      changeHistory: [],
     };
 
     if (!Object.values(TourNames).includes(booking.tourName))

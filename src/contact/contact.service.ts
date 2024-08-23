@@ -22,10 +22,7 @@ export class ContactService {
     const refactoredForm: SubmitContactDto = {
       email: contactForm.email.toLowerCase(),
       name: contactForm.name.toLowerCase(),
-      phone: {
-        phoneNumber: contactForm.phone.phoneNumber,
-        prefix: contactForm.phone.prefix,
-      },
+      phone: contactForm.phone,
       message: contactForm.message,
     };
 
@@ -39,10 +36,7 @@ export class ContactService {
       name: this.utilitiesService.capitalizeFirstLetter(
         createdContactForm.name,
       ),
-      phone: {
-        phoneNumber: createdContactForm.phone.phoneNumber,
-        prefix: createdContactForm.phone.prefix,
-      },
+      phone: createdContactForm.phone,
     });
 
     return SubmitContactResponseDto.mapToResponse(createdContactForm);

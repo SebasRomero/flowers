@@ -1,20 +1,3 @@
-/* import mongoose from 'mongoose';
-
-const PhoneSchema = new mongoose.Schema({
-  phone: String,
-  prefix: String,
-});
-
-export const ContactSchema = new mongoose.Schema({
-  name: String,
-  email: String,
-  phone: PhoneSchema,
-  message: String,
-});
-
-export const Contact = mongoose.model('Contact', ContactSchema);
- */
-
 import { Prop, raw, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
 
@@ -34,7 +17,7 @@ export class Contact {
       phoneNumber: { type: String },
     }),
   )
-  phone: Record<string, any>;
+  phone: string;
 
   @Prop()
   message: string;

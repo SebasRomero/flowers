@@ -4,11 +4,6 @@ export interface IContactForm {
   _id: Types.ObjectId;
   name: string;
   email: string;
-  phone: IPhoneNumber;
+  phone: string;
   message: string;
-}
-
-export interface IPhoneNumber {
-  prefix: string;
-  phoneNumber: string;
 }

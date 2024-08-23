@@ -2,10 +2,14 @@ import { Types } from 'mongoose';
 
 import { SubmitBookingDto } from './submit-booking.dto';
 import { IBooking } from '../types/booking.interface';
+import { BookingStatus } from '../types/booking-status';
+import { IDescriptionBooking } from 'src/dashboard/types/description.interface';
 
 export class SubmitBookingResponseDto extends SubmitBookingDto {
   id: Types.ObjectId;
   orderNumber: string;
+  status: BookingStatus;
+  changeHistory: IDescriptionBooking[];
 
   static mapToResponse(booking: IBooking): SubmitBookingResponseDto {
     return {
@@ -17,6 +21,8 @@ export class SubmitBookingResponseDto extends SubmitBookingDto {
       tourName: booking.tourName,
       dateStartingTour: booking.dateStartingTour,
       orderNumber: booking.orderNumber,
+      status: booking.status,
+      changeHistory: booking.changeHistory,
     };
   }
 }

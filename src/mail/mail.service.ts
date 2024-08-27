@@ -8,7 +8,7 @@ import {
   plainMessageForm,
 } from './messages/messages';
 import { IInfoContactForm } from 'src/contact/dto/info-contact.dto';
-import { senderEmail, senderName } from './types/constants';
+import { receiverEmail, senderEmail, senderName } from './types/constants';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const Mailjet = require('node-mailjet');
@@ -22,6 +22,27 @@ export class MailService {
   );
   constructor(private configService: ConfigService) {}
 
+  sendBookingEmailTeam(infoBooking: IInfoBooking) {
+    this.mailjet.post('send', { version: 'v3.1' }).request({
+      Messages: [
+        {
+          From: {
+            Email: receiverEmail,
+            Name: senderName,
+          },
+          To: [
+            {
+              Email: receiverEmail,
+              Name: infoBooking.name,
+            },
+          ],
+          Subject: 'A tour has been added!',
+          TextPart: plainMessageForm(infoBooking),
+          HTMLPart: htmlMessageForm(infoBooking),
+        },
+      ],
+    });
+  }
   sendBookingEmail(infoBooking: IInfoBooking) {
     this.mailjet.post('send', { version: 'v3.1' }).request({
       Messages: [

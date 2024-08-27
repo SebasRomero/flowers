@@ -45,13 +45,28 @@ export class BookingService {
 
     const createdBooking = await this.bookingModel.create(refactoredBooking);
 
+    this.mail(refactoredBooking);
+
+    return SubmitBookingResponseDto.mapToResponse(createdBooking);
+  }
+
+  mail(refactoredBooking: IBooking): void {
     this.mailService.sendBookingEmail({
       email: refactoredBooking.email,
       name: this.utilitiesService.capitalizeFirstLetter(refactoredBooking.name),
       tourName: refactoredBooking.tourName,
+      orderNumber: refactoredBooking.orderNumber,
+      numberOfPersons: refactoredBooking.numberOfPersons.toString(),
       dateStartingTour: refactoredBooking.dateStartingTour,
     });
 
-    return SubmitBookingResponseDto.mapToResponse(createdBooking);
+    this.mailService.sendBookingEmailTeam({
+      email: refactoredBooking.email,
+      name: this.utilitiesService.capitalizeFirstLetter(refactoredBooking.name),
+      tourName: refactoredBooking.tourName,
+      orderNumber: refactoredBooking.orderNumber,
+      numberOfPersons: refactoredBooking.numberOfPersons.toString(),
+      dateStartingTour: refactoredBooking.dateStartingTour,
+    });
   }
 }

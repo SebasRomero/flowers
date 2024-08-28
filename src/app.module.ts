@@ -18,9 +18,17 @@ import { ContactModule } from './contact/contact.module';
     }),
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
-      useFactory: async (configService: ConfigService) => ({
-        uri: configService.get<string>('DB_URI'),
-      }),
+      useFactory: async (configService: ConfigService) => {
+        const env = configService.get<string>('NODE_ENV');
+
+        const uri =
+          env === 'production'
+            ? configService.get<string>('DB_URI_PROD')
+            : configService.get<string>('DB_URI_TEST');
+        return {
+          uri,
+        };
+      },
       inject: [ConfigService],
     }),
     BookingModule,

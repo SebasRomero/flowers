@@ -11,7 +11,6 @@ export class UsersController {
   @Get('current-user')
   @Roles(Role.Admin)
   async currentUser(@Req() req): Promise<GetCurrentUserResponse> {
-    console.log(req);
     return {
       message: 'Current user',
       statusCode: HttpStatus.OK,

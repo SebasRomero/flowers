@@ -9,6 +9,7 @@ export enum TourNames {
   TOUR_HORSE = 'Tour Horse',
   PUNTA_CANA_TOUR_ZIP_LINE_PARK = 'Punta Cana Tour Zip Line Park',
   LA_HACIENDA_PARK = 'La Hacienda Park',
+  PARTY_BOAT_TOUR = 'Party Boat Tour',
 }
 
 export const ToursArray = [
@@ -22,4 +23,5 @@ export const ToursArray = [
   'Tour Horse',
   'Punta Cana Tour Zip Line Park',
   'La Hacienda Park',
+  'Party Boat Tour',
 ];

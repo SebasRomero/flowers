@@ -25,6 +25,9 @@ export class Booking {
   @Prop()
   dateStartingTour: Date;
 
+  @Prop()
+  archived: boolean;
+
   @Prop({ enum: BookingStatus })
   status: BookingStatus;
 

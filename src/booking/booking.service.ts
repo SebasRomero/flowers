@@ -32,9 +32,15 @@ export class BookingService {
       numberOfPersons: booking.numberOfPersons,
       phone: booking.phone,
       tourName: booking.tourName,
-      status: BookingStatus.CASE1,
+      status: BookingStatus.unrevised,
+      archived: false,
       orderNumber: this.utilitiesService.generateOrderNumber(),
-      changeHistory: [],
+      changeHistory: [
+        {
+          description: 'El cliente ha solicitado una reserva',
+          date: new Date(),
+        },
+      ],
     };
 
     if (!Object.values(TourNames).includes(booking.tourName))

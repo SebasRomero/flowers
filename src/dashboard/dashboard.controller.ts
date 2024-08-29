@@ -1,4 +1,12 @@
-import { Body, Controller, Get, HttpStatus, Param, Put } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpStatus,
+  Param,
+  Put,
+  Req,
+} from '@nestjs/common';
 import { Roles } from 'src/auth/decorators/roles.decorator';
 import { Role } from 'src/auth/enums/role.enum';
 import { DashboardService } from './dashboard.service';
@@ -41,7 +49,6 @@ export class DashboardController {
     };
   }
 
-
   @Put('archive/:id')
   @Roles(Role.Admin)
   async archiveBook(
@@ -57,6 +64,7 @@ export class DashboardController {
   @Put('/change-status/:id')
   @Roles(Role.Admin)
   async changeStatus(
+    @Req() req,
     @Param('id') id: string,
     @Body() status: ChangeTourStatusDto,
   ): Promise<ArchiveBookingTourResponse> {
@@ -64,6 +72,7 @@ export class DashboardController {
       statusCode: HttpStatus.OK,
       message: 'Status changed',
       data: await this.dashBoardService.changeBookingStatus(
+        req.user.username,
         new Types.ObjectId(id),
         status,
       ),

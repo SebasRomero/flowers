@@ -31,4 +31,20 @@ export class UtilitiesService {
       randomUUID().substring(25, 30)
     );
   }
+
+  getLastDate(lastDate: Date): string {
+    const actualDate = new Date();
+
+    if (
+      actualDate.getFullYear() == lastDate.getFullYear() &&
+      actualDate.getMonth() == lastDate.getMonth() &&
+      actualDate.getDate() == lastDate.getDate()
+    ) {
+      if (lastDate.getHours() != actualDate.getHours()) {
+        return `Hace ${actualDate.getHours() - lastDate.getHours()} horas`;
+      } else {
+        return `Hace ${actualDate.getMinutes() - actualDate.getMinutes()} minutos`;
+      }
+    }
+  }
 }

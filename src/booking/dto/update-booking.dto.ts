@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsEmail, IsNotEmpty } from 'class-validator';
 import { TourNames, ToursArray } from '../types/submit-booking.types';
-import { IDescriptionBooking } from 'src/dashboard/types/description.interface';
+import { IAllDescriptionBooking, IDescriptionBooking } from 'src/dashboard/types/description.interface';
 
 export class UpdateStatusBookingDto {
   @ApiProperty({ description: 'The name of the person.', type: String })
@@ -36,5 +36,5 @@ export class UpdateStatusBookingDto {
   dateStartingTour: Date;
 
   @ApiProperty({ description: 'Reason of the update' })
-  description: IDescriptionBooking;
+  observations: IDescriptionBooking;
 }

@@ -2,28 +2,33 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import mongoose, { Model, Types } from 'mongoose';
 import { Booking } from 'src/booking/schemas/booking.schema';
-import { Archived } from 'src/booking/types/booking-status';
 import { validateStatusChange } from './dashboard.functions';
 import { IBooking } from 'src/booking/types/booking.interface';
 import { ChangeTourStatusDto } from './dto/change-tour-status.dto';
+import { UtilitiesService } from 'src/utilities/utilities.service';
 @Injectable()
 export class DashboardService {
   constructor(
     @InjectModel(Booking.name) private readonly bookingModel: Model<Booking>,
+    private utilitiesService: UtilitiesService,
   ) {}
 
   async getBookings() {
-    return await this.bookingModel
-      .find({ $nor: [{ status: Archived }] })
+    const bookings: IBooking[] = await this.bookingModel
+      .find({ $nor: [{ archived: true }] })
       .lean();
+
+    return bookings;
   }
 
   async getBooking(id: string) {
-    return await this.bookingModel.findOne({ orderNumber: id }).lean();
+    const booking = await this.bookingModel.findOne({ orderNumber: id }).lean();
+    if (booking) return booking;
+    return [];
   }
 
   async getArchivedBookings() {
-    return await this.bookingModel.find({ status: { $ne: Archived } });
+    return await this.bookingModel.find({ archived: true });
   }
 
   async archiveBooking(id: string) {
@@ -31,7 +36,7 @@ export class DashboardService {
     const bookingUpdated = await this.bookingModel
       .findOneAndUpdate(
         { _id: newId },
-        { $set: { status: Archived } },
+        { $set: { archived: true } },
         { new: true },
       )
       .lean();
@@ -46,6 +51,7 @@ export class DashboardService {
   }
 
   async changeBookingStatus(
+    username: string,
     id: Types.ObjectId,
     newStatus: ChangeTourStatusDto,
   ): Promise<IBooking> {
@@ -55,7 +61,8 @@ export class DashboardService {
     if (validateStatusChange(currentStatus, newStatus.status)) {
       const actualHistory = booking.changeHistory;
       actualHistory.push({
-        description: newStatus.description,
+        observations: newStatus.observations,
+        description: `${username} cambió el estado a ${newStatus.status}`,
         date: new Date(),
         newStatus: newStatus.status,
         lastStatus: currentStatus,

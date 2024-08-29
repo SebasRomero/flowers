@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsEmail, IsNotEmpty } from 'class-validator';
 import { TourNames, ToursArray } from '../types/submit-booking.types';
-import { IAllDescriptionBooking, IDescriptionBooking } from 'src/dashboard/types/description.interface';
+import { IDescriptionBooking } from 'src/dashboard/types/description.interface';
 
 export class UpdateStatusBookingDto {
   @ApiProperty({ description: 'The name of the person.', type: String })

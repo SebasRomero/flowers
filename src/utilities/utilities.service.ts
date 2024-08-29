@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { hash, compare } from 'bcrypt';
 import { randomUUID } from 'crypto';
+import { Months } from './types/types';
 
 @Injectable()
 export class UtilitiesService {
@@ -32,18 +33,41 @@ export class UtilitiesService {
     );
   }
 
-  getLastDate(lastDate: Date): string {
+  formatDate(): string {
+    const actualDate = new Date();
+    const month = actualDate.getMonth();
+    const day = actualDate.getDate();
+    const year = actualDate.getFullYear();
+
+    return `${Months[month]} ${day}, ${year}`;
+  }
+
+  getMinutesHours(lastDate: Date): string {
     const actualDate = new Date();
 
-    if (
-      actualDate.getFullYear() == lastDate.getFullYear() &&
-      actualDate.getMonth() == lastDate.getMonth() &&
-      actualDate.getDate() == lastDate.getDate()
-    ) {
-      if (lastDate.getHours() != actualDate.getHours()) {
-        return `Hace ${actualDate.getHours() - lastDate.getHours()} horas`;
+    const diffMs = actualDate.getTime() - lastDate.getTime();
+
+    const diffMinutes = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMinutes / 60);
+
+    if (diffMinutes < 60) {
+      if (diffMinutes === 1) {
+        return `Hace 1 minuto`;
       } else {
-        return `Hace ${actualDate.getMinutes() - actualDate.getMinutes()} minutos`;
+        return `Hace ${diffMinutes} minutos`;
+      }
+    } else {
+      if (diffHours === 1) {
+        return `Hace 1 hora`;
+      } else {
+        if (diffHours > 23) {
+          const month = actualDate.getMonth();
+          const day = actualDate.getDate();
+          const year = actualDate.getFullYear();
+
+          return `${Months[month]} ${day}, ${year}`;
+        }
+        return `Hace ${diffHours} horas`;
       }
     }
   }

@@ -5,7 +5,7 @@ import { BookingStatus } from '../types/booking-status';
 import { IAllDescriptionBooking } from 'src/dashboard/types/description.interface';
 
 export type BookingDocument = HydratedDocument<Booking>;
-@Schema({ versionKey: false })
+@Schema({ versionKey: false, timestamps: true })
 export class Booking {
   @Prop()
   name: string;

@@ -18,7 +18,26 @@ export class DashboardService {
       .find({ $nor: [{ archived: true }] })
       .lean();
 
-    return bookings;
+    const result = [];
+    let elementResults = [];
+    bookings.map((element) => {
+      element.changeHistory.map((elementHistory) => {
+        const actualElementHistory = {
+          description: elementHistory.description,
+          lastStatus: elementHistory.lastStatus,
+          observations: elementHistory.observations,
+          newStatus: elementHistory.newStatus,
+          date: this.utilitiesService.getMinutesHours(elementHistory.date),
+        };
+
+        elementResults.push(actualElementHistory);
+      });
+      element.changeHistory = elementResults;
+      result.push(element);
+      elementResults = [];
+    });
+
+    return result;
   }
 
   async getBooking(id: string) {

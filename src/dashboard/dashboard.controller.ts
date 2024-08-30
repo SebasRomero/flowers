@@ -68,7 +68,7 @@ export class DashboardController {
     };
   }
 
-  @Put('archive/:id')
+  @Put('archived/:id')
   @Roles(Role.Admin)
   async archiveBook(
     @Param('id') id: string,
@@ -97,4 +97,6 @@ export class DashboardController {
       ),
     };
   }
+
+  
 }

@@ -5,6 +5,7 @@ import {
   HttpStatus,
   Param,
   Put,
+  Query,
   Req,
 } from '@nestjs/common';
 import { Roles } from 'src/auth/decorators/roles.decorator';
@@ -14,26 +15,31 @@ import { GetBookingTourFormResponse } from './responses/get-booking-tour-form.re
 import { ArchiveBookingTourResponse } from './responses/archive-tour-booking.response';
 import { ChangeTourStatusDto } from './dto/change-tour-status.dto';
 import { Types } from 'mongoose';
+import { IQueryGetBookings } from './types/query.interface';
 
 @Controller('dashboard')
 export class DashboardController {
   constructor(private readonly dashBoardService: DashboardService) {}
   @Get()
   @Roles(Role.Admin)
-  async getBookings(): Promise<GetBookingTourFormResponse> {
+  async getBookings(
+    @Query() query: IQueryGetBookings,
+  ): Promise<GetBookingTourFormResponse> {
     return {
       statusCode: HttpStatus.OK,
       message: 'Ok',
-      data: await this.dashBoardService.getBookings(),
+      data: await this.dashBoardService.getBookings(query),
     };
   }
   @Get('archived')
   @Roles(Role.Admin)
-  async getArchivedBookings(): Promise<GetBookingTourFormResponse> {
+  async getArchivedBookings(
+    @Query() query: IQueryGetBookings,
+  ): Promise<GetBookingTourFormResponse> {
     return {
       statusCode: HttpStatus.OK,
       message: 'Ok',
-      data: await this.dashBoardService.getArchivedBookings(),
+      data: await this.dashBoardService.getArchivedBookings(query),
     };
   }
 

@@ -6,6 +6,7 @@ import { validateStatusChange } from './dashboard.functions';
 import { IBooking } from 'src/booking/types/booking.interface';
 import { ChangeTourStatusDto } from './dto/change-tour-status.dto';
 import { UtilitiesService } from 'src/utilities/utilities.service';
+import { IQueryGetBookings } from './types/query.interface';
 @Injectable()
 export class DashboardService {
   constructor(
@@ -13,29 +14,35 @@ export class DashboardService {
     private utilitiesService: UtilitiesService,
   ) {}
 
-  async getBookings() {
-    const bookings: IBooking[] = await this.bookingModel
-      .find({ $nor: [{ archived: true }] })
-      .lean();
+  async getBookings(query: IQueryGetBookings) {
+    const { tourName, date } = query;
+
+    const bookings: IBooking[] = await this.getBooksByFilter(
+      tourName,
+      date,
+      false,
+    );
 
     const result = [];
     let elementResults = [];
-    bookings.map((element) => {
-      element.changeHistory.map((elementHistory) => {
-        const actualElementHistory = {
-          description: elementHistory.description,
-          lastStatus: elementHistory.lastStatus,
-          observations: elementHistory.observations,
-          newStatus: elementHistory.newStatus,
-          date: this.utilitiesService.getMinutesHours(elementHistory.date),
-        };
+    if (bookings.length > 0) {
+      bookings.map((element) => {
+        element.changeHistory.map((elementHistory) => {
+          const actualElementHistory = {
+            description: elementHistory.description,
+            lastStatus: elementHistory.lastStatus,
+            observations: elementHistory.observations,
+            newStatus: elementHistory.newStatus,
+            date: this.utilitiesService.getMinutesHours(elementHistory.date),
+          };
 
-        elementResults.push(actualElementHistory);
+          elementResults.push(actualElementHistory);
+        });
+        element.changeHistory = elementResults;
+        result.push(element);
+        elementResults = [];
       });
-      element.changeHistory = elementResults;
-      result.push(element);
-      elementResults = [];
-    });
+    }
 
     return result;
   }
@@ -46,8 +53,37 @@ export class DashboardService {
     return [];
   }
 
-  async getArchivedBookings() {
-    return await this.bookingModel.find({ archived: true });
+  async getArchivedBookings(query) {
+    const { tourName, date } = query;
+
+    const bookings: IBooking[] = await this.getBooksByFilter(
+      tourName,
+      date,
+      true,
+    );
+
+    const result = [];
+    let elementResults = [];
+    if (bookings.length > 0) {
+      bookings.map((element) => {
+        element.changeHistory.map((elementHistory) => {
+          const actualElementHistory = {
+            description: elementHistory.description,
+            lastStatus: elementHistory.lastStatus,
+            observations: elementHistory.observations,
+            newStatus: elementHistory.newStatus,
+            date: this.utilitiesService.getMinutesHours(elementHistory.date),
+          };
+
+          elementResults.push(actualElementHistory);
+        });
+        element.changeHistory = elementResults;
+        result.push(element);
+        elementResults = [];
+      });
+    }
+
+    return result;
   }
 
   async archiveBooking(id: string) {
@@ -101,5 +137,56 @@ export class DashboardService {
       'Error changing the status',
       HttpStatus.BAD_REQUEST,
     );
+  }
+
+  async getBooksByFilter(
+    tourName: string,
+    date: string,
+    archived: boolean,
+  ): Promise<IBooking[]> {
+    let bookings: IBooking[];
+    if (tourName && date) {
+      const newDate = new Date(date);
+      const startOfDay = new Date(newDate.setUTCHours(0, 0, 0, 0));
+      const endOfDay = new Date(newDate.setUTCHours(23, 59, 59, 999));
+
+      bookings = await this.bookingModel
+        .find({
+          archived,
+          tourName: tourName,
+          createdAt: {
+            $gte: startOfDay,
+            $lte: endOfDay,
+          },
+        })
+        .lean();
+    } else if (tourName && !date) {
+      bookings = await this.bookingModel
+        .find({
+          archived,
+          tourName: tourName,
+        })
+        .lean();
+    } else if (!tourName && date) {
+      const newDate = new Date(date);
+      const startOfDay = new Date(newDate.setUTCHours(0, 0, 0, 0));
+      const endOfDay = new Date(newDate.setUTCHours(23, 59, 59, 999));
+      bookings = await this.bookingModel
+        .find({
+          archived,
+          createdAt: {
+            $gte: startOfDay,
+            $lte: endOfDay,
+          },
+        })
+        .lean();
+    } else {
+      bookings = await this.bookingModel
+        .find({
+          archived,
+        })
+        .lean();
+    }
+    return bookings;
   }
 }

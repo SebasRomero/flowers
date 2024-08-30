@@ -36,6 +36,12 @@ export class Booking {
 
   @Prop()
   changeHistory: IAllDescriptionBooking[];
+
+  @Prop({ isRequired: false })
+  createdAt: Date;
+
+  @Prop({ isRequired: false })
+  updatedAt: Date;
 }
 
 export const BookingSchema = SchemaFactory.createForClass(Booking);

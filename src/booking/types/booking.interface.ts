@@ -15,4 +15,6 @@ export interface IBooking {
   archived: boolean;
   status: BookingStatus;
   changeHistory: IAllDescriptionBooking[];
+  createdAt?: Date;
+  updatedAt?: Date;
 }

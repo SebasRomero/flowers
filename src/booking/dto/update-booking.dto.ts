@@ -36,5 +36,5 @@ export class UpdateStatusBookingDto {
   dateStartingTour: Date;
 
   @ApiProperty({ description: 'Reason of the update' })
-  description: IDescriptionBooking;
+  observations: IDescriptionBooking;
 }

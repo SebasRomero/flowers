@@ -9,12 +9,15 @@ import { Model } from 'mongoose';
 import { UtilitiesService } from 'src/utilities/utilities.service';
 import { IBooking } from './types/booking.interface';
 import { BookingStatus } from './types/booking-status';
+import { Client } from 'src/client/schemas/client.schema';
+import { IClient } from 'src/client/types/client.types';
 
 @Injectable()
 export class BookingService {
   constructor(
     private utilitiesService: UtilitiesService,
     @InjectModel(Booking.name) private bookingModel: Model<Booking>,
+    @InjectModel(Client.name) private clientModel: Model<Client>,
     private mailService: MailService,
   ) {}
 
@@ -31,13 +34,19 @@ export class BookingService {
       dateStartingTour: booking.dateStartingTour,
       numberOfPersons: booking.numberOfPersons,
       phone: booking.phone,
-      tourName: booking.tourName,
-      status: BookingStatus.CASE1,
+      tourName: TourNames[booking.tourName],
+      status: BookingStatus.unrevised,
+      archived: false,
       orderNumber: this.utilitiesService.generateOrderNumber(),
-      changeHistory: [],
+      changeHistory: [
+        {
+          description: 'El cliente ha solicitado una reserva',
+          date: new Date(),
+        },
+      ],
     };
 
-    if (!Object.values(TourNames).includes(booking.tourName))
+    if (!Object.keys(TourNames).includes(booking.tourName))
       throw new HttpException(
         'Tour name should be correct',
         HttpStatus.BAD_REQUEST,
@@ -46,6 +55,14 @@ export class BookingService {
     const createdBooking = await this.bookingModel.create(refactoredBooking);
 
     this.mail(refactoredBooking);
+
+    const client: IClient = {
+      name: refactoredBooking.name,
+      orderNumber: refactoredBooking.orderNumber,
+      phone: refactoredBooking.phone,
+      status: refactoredBooking.status,
+    };
+    await this.clientModel.create(client);
 
     return SubmitBookingResponseDto.mapToResponse(createdBooking);
   }

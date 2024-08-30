@@ -7,10 +7,14 @@ import { MailService } from 'src/mail/mail.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { UtilitiesService } from 'src/utilities/utilities.service';
 import { UtilitiesModule } from 'src/utilities/utilities.module';
+import { Client, ClientSchema } from 'src/client/schemas/client.schema';
 
 @Module({
   imports: [
-    MongooseModule.forFeature([{ name: Booking.name, schema: BookingSchema }]),
+    MongooseModule.forFeature([
+      { name: Booking.name, schema: BookingSchema },
+      { name: Client.name, schema: ClientSchema },
+    ]),
     MailModule,
     UtilitiesModule,
   ],

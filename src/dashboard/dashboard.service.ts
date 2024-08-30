@@ -6,11 +6,13 @@ import { validateStatusChange } from './dashboard.functions';
 import { IBooking } from 'src/booking/types/booking.interface';
 import { ChangeTourStatusDto } from './dto/change-tour-status.dto';
 import { UtilitiesService } from 'src/utilities/utilities.service';
-import { IQueryGetBookings } from './types/query.interface';
+import { IQueryGetBookings, IQueryGetClient } from './types/query.interface';
+import { Client } from 'src/client/schemas/client.schema';
 @Injectable()
 export class DashboardService {
   constructor(
     @InjectModel(Booking.name) private readonly bookingModel: Model<Booking>,
+    @InjectModel(Client.name) private readonly clientModel: Model<Client>,
     private utilitiesService: UtilitiesService,
   ) {}
 
@@ -130,6 +132,15 @@ export class DashboardService {
         },
         { new: true },
       );
+
+      await this.clientModel.updateOne(
+        { orderNumber: booking.orderNumber },
+        {
+          $set: {
+            status: newStatus.status,
+          },
+        },
+      );
       return booking;
     }
 
@@ -188,5 +199,59 @@ export class DashboardService {
         .lean();
     }
     return bookings;
+  }
+
+  async getClients(query: IQueryGetClient) {
+    const { date, orderNumber, page } = query;
+    const currentPage = Number(page) || 1;
+    const responsePerPage = 7;
+    const skip = responsePerPage * (currentPage - 1);
+
+    if (date && orderNumber) {
+      const newDate = new Date(date);
+      const startOfDay = new Date(newDate.setUTCHours(0, 0, 0, 0));
+      const endOfDay = new Date(newDate.setUTCHours(23, 59, 59, 999));
+      return this.clientModel
+        .find(
+          {
+            orderNumber,
+            createdAt: {
+              $gte: startOfDay,
+              $lte: endOfDay,
+            },
+          },
+          {},
+          { skip },
+        )
+        .lean();
+    } else if (date && !orderNumber) {
+      const newDate = new Date(date);
+      const startOfDay = new Date(newDate.setUTCHours(0, 0, 0, 0));
+      const endOfDay = new Date(newDate.setUTCHours(23, 59, 59, 999));
+      return this.clientModel
+        .find(
+          {
+            createdAt: {
+              $gte: startOfDay,
+              $lte: endOfDay,
+            },
+          },
+          {},
+          { skip },
+        )
+        .lean();
+    } else if (!date && orderNumber) {
+      return this.clientModel
+        .find(
+          {
+            orderNumber,
+          },
+          {},
+          { skip },
+        )
+        .lean();
+    } else {
+      return this.clientModel.find({}, {}, { skip }).lean();
+    }
   }
 }

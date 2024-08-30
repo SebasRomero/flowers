@@ -15,7 +15,8 @@ import { GetBookingTourFormResponse } from './responses/get-booking-tour-form.re
 import { ArchiveBookingTourResponse } from './responses/archive-tour-booking.response';
 import { ChangeTourStatusDto } from './dto/change-tour-status.dto';
 import { Types } from 'mongoose';
-import { IQueryGetBookings } from './types/query.interface';
+import { IQueryGetBookings, IQueryGetClient } from './types/query.interface';
+import { GetClientsResponse } from './responses/get-client.response';
 
 @Controller('dashboard')
 export class DashboardController {
@@ -40,6 +41,18 @@ export class DashboardController {
       statusCode: HttpStatus.OK,
       message: 'Ok',
       data: await this.dashBoardService.getArchivedBookings(query),
+    };
+  }
+
+  @Get('client')
+  @Roles(Role.Admin)
+  async getClients(
+    @Query() query: IQueryGetClient,
+  ): Promise<GetClientsResponse> {
+    return {
+      statusCode: HttpStatus.OK,
+      message: 'Clients',
+      data: await this.dashBoardService.getClients(query),
     };
   }
 

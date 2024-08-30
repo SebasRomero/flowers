@@ -9,12 +9,15 @@ import { Model } from 'mongoose';
 import { UtilitiesService } from 'src/utilities/utilities.service';
 import { IBooking } from './types/booking.interface';
 import { BookingStatus } from './types/booking-status';
+import { Client } from 'src/client/schemas/client.schema';
+import { IClient } from 'src/client/types/client.types';
 
 @Injectable()
 export class BookingService {
   constructor(
     private utilitiesService: UtilitiesService,
     @InjectModel(Booking.name) private bookingModel: Model<Booking>,
+    @InjectModel(Client.name) private clientModel: Model<Client>,
     private mailService: MailService,
   ) {}
 
@@ -52,6 +55,14 @@ export class BookingService {
     const createdBooking = await this.bookingModel.create(refactoredBooking);
 
     this.mail(refactoredBooking);
+
+    const client: IClient = {
+      name: refactoredBooking.name,
+      orderNumber: refactoredBooking.orderNumber,
+      phone: refactoredBooking.phone,
+      status: refactoredBooking.status,
+    };
+    await this.clientModel.create(client);
 
     return SubmitBookingResponseDto.mapToResponse(createdBooking);
   }

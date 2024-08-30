@@ -11,6 +11,8 @@ import { RolesGuard } from './auth/guards/roles.guard';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
 import { ContactModule } from './contact/contact.module';
+import { ClientService } from './client/client.service';
+import { ClientModule } from './client/client.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -38,10 +40,12 @@ import { ContactModule } from './contact/contact.module';
     UtilitiesModule,
     DashboardModule,
     ContactModule,
+    ClientModule,
   ],
   providers: [
     { provide: APP_GUARD, useClass: JwtAuthGuard },
     { provide: APP_GUARD, useClass: RolesGuard },
+    ClientService,
   ],
 })
 export class AppModule {}

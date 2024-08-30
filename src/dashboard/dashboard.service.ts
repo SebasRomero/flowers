@@ -204,7 +204,7 @@ export class DashboardService {
   async getClients(query: IQueryGetClient) {
     const { date, orderNumber, page } = query;
     const currentPage = Number(page) || 1;
-    const responsePerPage = 7;
+    const responsePerPage = 2;
     const skip = responsePerPage * (currentPage - 1);
 
     if (date && orderNumber) {
@@ -221,7 +221,7 @@ export class DashboardService {
             },
           },
           {},
-          { skip },
+          { limit: responsePerPage, skip },
         )
         .lean();
     } else if (date && !orderNumber) {
@@ -237,7 +237,7 @@ export class DashboardService {
             },
           },
           {},
-          { skip },
+          { limit: responsePerPage, skip },
         )
         .lean();
     } else if (!date && orderNumber) {
@@ -247,11 +247,13 @@ export class DashboardService {
             orderNumber,
           },
           {},
-          { skip },
+          { limit: responsePerPage, skip },
         )
         .lean();
     } else {
-      return this.clientModel.find({}, {}, { skip }).lean();
+      return this.clientModel
+        .find({}, {}, { limit: responsePerPage, skip })
+        .lean();
     }
   }
 }

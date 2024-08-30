@@ -31,7 +31,7 @@ export class BookingService {
       dateStartingTour: booking.dateStartingTour,
       numberOfPersons: booking.numberOfPersons,
       phone: booking.phone,
-      tourName: booking.tourName,
+      tourName: TourNames[booking.tourName],
       status: BookingStatus.unrevised,
       archived: false,
       orderNumber: this.utilitiesService.generateOrderNumber(),
@@ -43,7 +43,7 @@ export class BookingService {
       ],
     };
 
-    if (!Object.values(TourNames).includes(booking.tourName))
+    if (!Object.keys(TourNames).includes(booking.tourName))
       throw new HttpException(
         'Tour name should be correct',
         HttpStatus.BAD_REQUEST,

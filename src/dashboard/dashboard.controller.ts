@@ -1,4 +1,13 @@
-import { Body, Controller, Get, HttpStatus, Param, Put } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpStatus,
+  Param,
+  Put,
+  Query,
+  Req,
+} from '@nestjs/common';
 import { Roles } from 'src/auth/decorators/roles.decorator';
 import { Role } from 'src/auth/enums/role.enum';
 import { DashboardService } from './dashboard.service';
@@ -6,26 +15,44 @@ import { GetBookingTourFormResponse } from './responses/get-booking-tour-form.re
 import { ArchiveBookingTourResponse } from './responses/archive-tour-booking.response';
 import { ChangeTourStatusDto } from './dto/change-tour-status.dto';
 import { Types } from 'mongoose';
+import { IQueryGetBookings, IQueryGetClient } from './types/query.interface';
+import { GetClientsResponse } from './responses/get-client.response';
 
 @Controller('dashboard')
 export class DashboardController {
   constructor(private readonly dashBoardService: DashboardService) {}
   @Get()
   @Roles(Role.Admin)
-  async getBookings(): Promise<GetBookingTourFormResponse> {
+  async getBookings(
+    @Query() query: IQueryGetBookings,
+  ): Promise<GetBookingTourFormResponse> {
     return {
       statusCode: HttpStatus.OK,
       message: 'Ok',
-      data: await this.dashBoardService.getBookings(),
+      data: await this.dashBoardService.getBookings(query),
     };
   }
   @Get('archived')
   @Roles(Role.Admin)
-  async getArchivedBookings(): Promise<GetBookingTourFormResponse> {
+  async getArchivedBookings(
+    @Query() query: IQueryGetBookings,
+  ): Promise<GetBookingTourFormResponse> {
     return {
       statusCode: HttpStatus.OK,
       message: 'Ok',
-      data: await this.dashBoardService.getArchivedBookings(),
+      data: await this.dashBoardService.getArchivedBookings(query),
+    };
+  }
+
+  @Get('client')
+  @Roles(Role.Admin)
+  async getClients(
+    @Query() query: IQueryGetClient,
+  ): Promise<GetClientsResponse> {
+    return {
+      statusCode: HttpStatus.OK,
+      message: 'Clients',
+      data: await this.dashBoardService.getClients(query),
     };
   }
 
@@ -40,7 +67,6 @@ export class DashboardController {
       data: await this.dashBoardService.getBooking(id),
     };
   }
-
 
   @Put('archive/:id')
   @Roles(Role.Admin)
@@ -57,6 +83,7 @@ export class DashboardController {
   @Put('/change-status/:id')
   @Roles(Role.Admin)
   async changeStatus(
+    @Req() req,
     @Param('id') id: string,
     @Body() status: ChangeTourStatusDto,
   ): Promise<ArchiveBookingTourResponse> {
@@ -64,6 +91,7 @@ export class DashboardController {
       statusCode: HttpStatus.OK,
       message: 'Status changed',
       data: await this.dashBoardService.changeBookingStatus(
+        req.user.username,
         new Types.ObjectId(id),
         status,
       ),

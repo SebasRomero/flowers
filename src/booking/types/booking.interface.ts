@@ -1,7 +1,7 @@
 import { Types } from 'mongoose';
 import { TourNames } from './submit-booking.types';
 import { BookingStatus } from './booking-status';
-import { IDescriptionBooking } from 'src/dashboard/types/description.interface';
+import { IAllDescriptionBooking } from 'src/dashboard/types/description.interface';
 
 export interface IBooking {
   _id?: Types.ObjectId;
@@ -12,6 +12,9 @@ export interface IBooking {
   numberOfPersons: number;
   tourName: TourNames;
   dateStartingTour: Date;
+  archived: boolean;
   status: BookingStatus;
-  changeHistory: IDescriptionBooking[];
+  changeHistory: IAllDescriptionBooking[];
+  createdAt?: Date;
+  updatedAt?: Date;
 }

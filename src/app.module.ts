@@ -11,6 +11,8 @@ import { RolesGuard } from './auth/guards/roles.guard';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
 import { ContactModule } from './contact/contact.module';
+import { ClientService } from './client/client.service';
+import { ClientModule } from './client/client.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -18,9 +20,17 @@ import { ContactModule } from './contact/contact.module';
     }),
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
-      useFactory: async (configService: ConfigService) => ({
-        uri: configService.get<string>('DB_URI'),
-      }),
+      useFactory: async (configService: ConfigService) => {
+        const env = configService.get<string>('NODE_ENV');
+
+        const uri =
+          env === 'production'
+            ? configService.get<string>('DB_URI_PROD')
+            : configService.get<string>('DB_URI_TEST');
+        return {
+          uri,
+        };
+      },
       inject: [ConfigService],
     }),
     BookingModule,
@@ -30,10 +40,12 @@ import { ContactModule } from './contact/contact.module';
     UtilitiesModule,
     DashboardModule,
     ContactModule,
+    ClientModule,
   ],
   providers: [
     { provide: APP_GUARD, useClass: JwtAuthGuard },
     { provide: APP_GUARD, useClass: RolesGuard },
+    ClientService,
   ],
 })
 export class AppModule {}

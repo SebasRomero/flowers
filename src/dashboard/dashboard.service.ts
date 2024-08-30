@@ -2,28 +2,90 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import mongoose, { Model, Types } from 'mongoose';
 import { Booking } from 'src/booking/schemas/booking.schema';
-import { Archived } from 'src/booking/types/booking-status';
 import { validateStatusChange } from './dashboard.functions';
 import { IBooking } from 'src/booking/types/booking.interface';
 import { ChangeTourStatusDto } from './dto/change-tour-status.dto';
+import { UtilitiesService } from 'src/utilities/utilities.service';
+import { IQueryGetBookings, IQueryGetClient } from './types/query.interface';
+import { Client } from 'src/client/schemas/client.schema';
 @Injectable()
 export class DashboardService {
   constructor(
     @InjectModel(Booking.name) private readonly bookingModel: Model<Booking>,
+    @InjectModel(Client.name) private readonly clientModel: Model<Client>,
+    private utilitiesService: UtilitiesService,
   ) {}
 
-  async getBookings() {
-    return await this.bookingModel
-      .find({ $nor: [{ status: Archived }] })
-      .lean();
+  async getBookings(query: IQueryGetBookings) {
+    const { tourName, date } = query;
+
+    const bookings: IBooking[] = await this.getBooksByFilter(
+      tourName,
+      date,
+      false,
+    );
+
+    const result = [];
+    let elementResults = [];
+    if (bookings.length > 0) {
+      bookings.map((element) => {
+        element.changeHistory.map((elementHistory) => {
+          const actualElementHistory = {
+            description: elementHistory.description,
+            lastStatus: elementHistory.lastStatus,
+            observations: elementHistory.observations,
+            newStatus: elementHistory.newStatus,
+            date: this.utilitiesService.getMinutesHours(elementHistory.date),
+          };
+
+          elementResults.push(actualElementHistory);
+        });
+        element.changeHistory = elementResults;
+        result.push(element);
+        elementResults = [];
+      });
+    }
+
+    return result;
   }
 
   async getBooking(id: string) {
-    return await this.bookingModel.findOne({ orderNumber: id }).lean();
+    const booking = await this.bookingModel.findOne({ orderNumber: id }).lean();
+    if (booking) return booking;
+    return [];
   }
 
-  async getArchivedBookings() {
-    return await this.bookingModel.find({ status: { $ne: Archived } });
+  async getArchivedBookings(query) {
+    const { tourName, date } = query;
+
+    const bookings: IBooking[] = await this.getBooksByFilter(
+      tourName,
+      date,
+      true,
+    );
+
+    const result = [];
+    let elementResults = [];
+    if (bookings.length > 0) {
+      bookings.map((element) => {
+        element.changeHistory.map((elementHistory) => {
+          const actualElementHistory = {
+            description: elementHistory.description,
+            lastStatus: elementHistory.lastStatus,
+            observations: elementHistory.observations,
+            newStatus: elementHistory.newStatus,
+            date: this.utilitiesService.getMinutesHours(elementHistory.date),
+          };
+
+          elementResults.push(actualElementHistory);
+        });
+        element.changeHistory = elementResults;
+        result.push(element);
+        elementResults = [];
+      });
+    }
+
+    return result;
   }
 
   async archiveBooking(id: string) {
@@ -31,7 +93,7 @@ export class DashboardService {
     const bookingUpdated = await this.bookingModel
       .findOneAndUpdate(
         { _id: newId },
-        { $set: { status: Archived } },
+        { $set: { archived: true } },
         { new: true },
       )
       .lean();
@@ -46,6 +108,7 @@ export class DashboardService {
   }
 
   async changeBookingStatus(
+    username: string,
     id: Types.ObjectId,
     newStatus: ChangeTourStatusDto,
   ): Promise<IBooking> {
@@ -55,7 +118,8 @@ export class DashboardService {
     if (validateStatusChange(currentStatus, newStatus.status)) {
       const actualHistory = booking.changeHistory;
       actualHistory.push({
-        description: newStatus.description,
+        observations: newStatus.observations,
+        description: `${username} cambió el estado a ${newStatus.status}`,
         date: new Date(),
         newStatus: newStatus.status,
         lastStatus: currentStatus,
@@ -68,6 +132,15 @@ export class DashboardService {
         },
         { new: true },
       );
+
+      await this.clientModel.updateOne(
+        { orderNumber: booking.orderNumber },
+        {
+          $set: {
+            status: newStatus.status,
+          },
+        },
+      );
       return booking;
     }
 
@@ -75,5 +148,112 @@ export class DashboardService {
       'Error changing the status',
       HttpStatus.BAD_REQUEST,
     );
+  }
+
+  async getBooksByFilter(
+    tourName: string,
+    date: string,
+    archived: boolean,
+  ): Promise<IBooking[]> {
+    let bookings: IBooking[];
+    if (tourName && date) {
+      const newDate = new Date(date);
+      const startOfDay = new Date(newDate.setUTCHours(0, 0, 0, 0));
+      const endOfDay = new Date(newDate.setUTCHours(23, 59, 59, 999));
+
+      bookings = await this.bookingModel
+        .find({
+          archived,
+          tourName: tourName,
+          createdAt: {
+            $gte: startOfDay,
+            $lte: endOfDay,
+          },
+        })
+        .lean();
+    } else if (tourName && !date) {
+      bookings = await this.bookingModel
+        .find({
+          archived,
+          tourName: tourName,
+        })
+        .lean();
+    } else if (!tourName && date) {
+      const newDate = new Date(date);
+      const startOfDay = new Date(newDate.setUTCHours(0, 0, 0, 0));
+      const endOfDay = new Date(newDate.setUTCHours(23, 59, 59, 999));
+      bookings = await this.bookingModel
+        .find({
+          archived,
+          createdAt: {
+            $gte: startOfDay,
+            $lte: endOfDay,
+          },
+        })
+        .lean();
+    } else {
+      bookings = await this.bookingModel
+        .find({
+          archived,
+        })
+        .lean();
+    }
+    return bookings;
+  }
+
+  async getClients(query: IQueryGetClient) {
+    const { date, orderNumber, page } = query;
+    const currentPage = Number(page) || 1;
+    const responsePerPage = 2;
+    const skip = responsePerPage * (currentPage - 1);
+
+    if (date && orderNumber) {
+      const newDate = new Date(date);
+      const startOfDay = new Date(newDate.setUTCHours(0, 0, 0, 0));
+      const endOfDay = new Date(newDate.setUTCHours(23, 59, 59, 999));
+      return this.clientModel
+        .find(
+          {
+            orderNumber,
+            createdAt: {
+              $gte: startOfDay,
+              $lte: endOfDay,
+            },
+          },
+          {},
+          { limit: responsePerPage, skip },
+        )
+        .lean();
+    } else if (date && !orderNumber) {
+      const newDate = new Date(date);
+      const startOfDay = new Date(newDate.setUTCHours(0, 0, 0, 0));
+      const endOfDay = new Date(newDate.setUTCHours(23, 59, 59, 999));
+      return this.clientModel
+        .find(
+          {
+            createdAt: {
+              $gte: startOfDay,
+              $lte: endOfDay,
+            },
+          },
+          {},
+          { limit: responsePerPage, skip },
+        )
+        .lean();
+    } else if (!date && orderNumber) {
+      return this.clientModel
+        .find(
+          {
+            orderNumber,
+          },
+          {},
+          { limit: responsePerPage, skip },
+        )
+        .lean();
+    } else {
+      return this.clientModel
+        .find({}, {}, { limit: responsePerPage, skip })
+        .lean();
+    }
   }
 }

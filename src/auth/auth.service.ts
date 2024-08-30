@@ -17,7 +17,7 @@ export class AuthService {
   ) {}
 
   async signUp(createUser: CreateUserDto): Promise<SignUpResponseDto> {
-    const { username, password, role } = createUser;
+    const { username, name, password, role } = createUser;
     const user = await this.userModel.findOne({ username: username });
 
     if (user)
@@ -27,14 +27,12 @@ export class AuthService {
 
     const createdUser = await this.userModel.create({
       username: username,
+      name: name,
       password: hashedPassword,
       roles: role,
     });
 
-    return this.getAccessToken({
-      username: createdUser.username,
-      sub: createdUser._id,
-    });
+    return this.login(createdUser);
   }
 
   async validateUser(username: string, password: string): Promise<any> {
@@ -51,6 +49,7 @@ export class AuthService {
     return {
       _id: user._id,
       username: user.username,
+      name: user.name,
       roles: user.roles,
     };
   }
@@ -58,10 +57,18 @@ export class AuthService {
   login(user: any): LoginResponseDto {
     const payload = {
       username: user.username,
+      name: user.name,
       sub: user._id,
       roles: user.roles,
     };
-    return this.getAccessToken(payload);
+    return {
+      user: {
+        name: user.name,
+        username: user.username,
+        roles: user.roles,
+      },
+      access_token: this.getAccessToken(payload).access_token,
+    };
   }
 
   getAccessToken(payload) {

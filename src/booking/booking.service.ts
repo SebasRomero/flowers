@@ -28,6 +28,10 @@ export class BookingService {
   async submitBooking(
     booking: SubmitBookingDto,
   ): Promise<SubmitBookingResponseDto> {
+    const date = new Date(booking.dateStartingTour);
+    const actualDate = new Date();
+    if (date < actualDate)
+      throw new HttpException('La fecha debe correcta', HttpStatus.BAD_REQUEST);
     const refactoredBooking: IBooking = {
       email: booking.email.toLowerCase(),
       name: booking.name.toLowerCase(),

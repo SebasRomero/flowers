@@ -13,6 +13,7 @@ import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
 import { ContactModule } from './contact/contact.module';
 import { ClientService } from './client/client.service';
 import { ClientModule } from './client/client.module';
+import { TourModule } from './tour/tour.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -41,6 +42,7 @@ import { ClientModule } from './client/client.module';
     DashboardModule,
     ContactModule,
     ClientModule,
+    TourModule,
   ],
   providers: [
     { provide: APP_GUARD, useClass: JwtAuthGuard },

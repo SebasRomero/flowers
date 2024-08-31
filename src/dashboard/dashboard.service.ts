@@ -104,7 +104,7 @@ export class DashboardService {
 
     if (!bookingUpdated)
       throw new HttpException(
-        'Error archiving the book',
+        'Error archivando la reserva',
         HttpStatus.BAD_REQUEST,
       );
 
@@ -149,7 +149,7 @@ export class DashboardService {
     }
 
     throw new HttpException(
-      'Error changing the status',
+      'Error cambiando el estado',
       HttpStatus.BAD_REQUEST,
     );
   }

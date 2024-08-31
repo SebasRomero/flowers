@@ -52,7 +52,7 @@ export class BookingService {
 
     if (!Object.keys(TourNames).includes(booking.tourName))
       throw new HttpException(
-        'Tour name should be correct',
+        'El nombre del tour debe ser correcto',
         HttpStatus.BAD_REQUEST,
       );
 

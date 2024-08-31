@@ -8,11 +8,15 @@ import { ChangeTourStatusDto } from './dto/change-tour-status.dto';
 import { UtilitiesService } from 'src/utilities/utilities.service';
 import { IQueryGetBookings, IQueryGetClient } from './types/query.interface';
 import { Client } from 'src/client/schemas/client.schema';
+import { Tour } from 'src/tour/schema/tour.schema';
+import { TourNames } from 'src/booking/types/submit-booking.types';
+import { ChangeTourPrice } from './dto/change-tour-price.dto';
 @Injectable()
 export class DashboardService {
   constructor(
     @InjectModel(Booking.name) private readonly bookingModel: Model<Booking>,
     @InjectModel(Client.name) private readonly clientModel: Model<Client>,
+    @InjectModel(Tour.name) private readonly tourModel: Model<Tour>,
     private utilitiesService: UtilitiesService,
   ) {}
 
@@ -256,4 +260,26 @@ export class DashboardService {
         .lean();
     }
   }
+
+  async getTours() {
+    return await this.tourModel.find();
+  }
+  async changeTourPrice(changeTourPrice: ChangeTourPrice) {
+    const { price, tourName } = changeTourPrice;
+    const tour = await this.tourModel.findOneAndUpdate(
+      { name: TourNames[tourName] },
+      { $set: { price } },
+      {
+        new: true,
+      },
+    );
+    if (tour) return tour;
+    return [];
+  }
+
+  /*   async addTour() {
+    ToursArray.map(async (element) => {
+      await this.tourModel.create({ name: element, price: 0 });
+    });
+  } */
 }

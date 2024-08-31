@@ -17,6 +17,8 @@ import { ChangeTourStatusDto } from './dto/change-tour-status.dto';
 import { Types } from 'mongoose';
 import { IQueryGetBookings, IQueryGetClient } from './types/query.interface';
 import { GetClientsResponse } from './responses/get-client.response';
+import { GetToursResponse } from './responses/get-tours.response';
+import { ChangeTourPrice } from './dto/change-tour-price.dto';
 
 @Controller('dashboard')
 export class DashboardController {
@@ -53,6 +55,27 @@ export class DashboardController {
       statusCode: HttpStatus.OK,
       message: 'Clients',
       data: await this.dashBoardService.getClients(query),
+    };
+  }
+
+  @Get('tours')
+  @Roles(Role.Admin)
+  async getTours(): Promise<GetToursResponse> {
+    return {
+      message: 'Tours',
+      statusCode: HttpStatus.OK,
+      data: await this.dashBoardService.getTours(),
+    };
+  }
+  @Put('tours')
+  @Roles(Role.Admin)
+  async changePriceTour(
+    @Body() changeTourPrice: ChangeTourPrice,
+  ): Promise<GetToursResponse> {
+    return {
+      message: 'Price changed',
+      statusCode: HttpStatus.OK,
+      data: await this.dashBoardService.changeTourPrice(changeTourPrice),
     };
   }
 
@@ -97,6 +120,4 @@ export class DashboardController {
       ),
     };
   }
-
-  
 }

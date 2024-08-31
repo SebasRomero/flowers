@@ -11,7 +11,6 @@ export class ChangeTourStatusDto {
     description: 'The observations',
     type: String,
   })
-  @IsNotEmpty()
   @MaxLength(200)
   observations: string;
 }

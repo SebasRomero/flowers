@@ -19,6 +19,7 @@ import { IQueryGetBookings, IQueryGetClient } from './types/query.interface';
 import { GetClientsResponse } from './responses/get-client.response';
 import { GetToursResponse } from './responses/get-tours.response';
 import { ChangeTourPrice } from './dto/change-tour-price.dto';
+import { ChangeArchivedStatusDto } from './dto/change-archived-status.dto';
 
 @Controller('dashboard')
 export class DashboardController {
@@ -95,11 +96,15 @@ export class DashboardController {
   @Roles(Role.Admin)
   async archiveBook(
     @Param('id') id: string,
+    @Body() changeArchivedStatus: ChangeArchivedStatusDto,
   ): Promise<ArchiveBookingTourResponse> {
     return {
       statusCode: HttpStatus.OK,
-      message: 'Archived',
-      data: await this.dashBoardService.archiveBooking(id),
+      message: 'Status archived changed',
+      data: await this.dashBoardService.archiveBooking(
+        id,
+        changeArchivedStatus,
+      ),
     };
   }
 

@@ -12,7 +12,7 @@ export interface IBooking {
   numberOfPersons: number;
   tourName: TourNames;
   dateStartingTour: Date;
-  archived: boolean;
+  isArchived: boolean;
   status: BookingStatus;
   changeHistory: IAllDescriptionBooking[];
   createdAt?: Date;

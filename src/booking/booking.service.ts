@@ -40,7 +40,7 @@ export class BookingService {
       phone: booking.phone,
       tourName: TourNames[booking.tourName],
       status: BookingStatus.unrevised,
-      archived: false,
+      isArchived: false,
       orderNumber: this.utilitiesService.generateOrderNumber(),
       changeHistory: [
         {

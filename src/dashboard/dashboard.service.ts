@@ -11,6 +11,7 @@ import { Client } from 'src/client/schemas/client.schema';
 import { Tour } from 'src/tour/schema/tour.schema';
 import { TourNames } from 'src/booking/types/submit-booking.types';
 import { ChangeTourPrice } from './dto/change-tour-price.dto';
+import { ChangeArchivedStatusDto } from './dto/change-archived-status.dto';
 @Injectable()
 export class DashboardService {
   constructor(
@@ -92,19 +93,19 @@ export class DashboardService {
     return result;
   }
 
-  async archiveBooking(id: string) {
+  async archiveBooking(
+    id: string,
+    changeArchivedStatus: ChangeArchivedStatusDto,
+  ) {
+    const { isArchived } = changeArchivedStatus;
     const newId = new mongoose.Types.ObjectId(id);
     const bookingUpdated = await this.bookingModel
-      .findOneAndUpdate(
-        { _id: newId },
-        { $set: { archived: true } },
-        { new: true },
-      )
+      .findOneAndUpdate({ _id: newId }, { $set: { isArchived } }, { new: true })
       .lean();
 
     if (!bookingUpdated)
       throw new HttpException(
-        'Error archiving the book',
+        'Error archivando la reserva',
         HttpStatus.BAD_REQUEST,
       );
 
@@ -149,7 +150,7 @@ export class DashboardService {
     }
 
     throw new HttpException(
-      'Error changing the status',
+      'Error cambiando el estado',
       HttpStatus.BAD_REQUEST,
     );
   }
@@ -157,7 +158,7 @@ export class DashboardService {
   async getBooksByFilter(
     tourName: string,
     date: string,
-    archived: boolean,
+    isArchived: boolean,
   ): Promise<IBooking[]> {
     let bookings: IBooking[];
     if (tourName && date) {
@@ -167,7 +168,7 @@ export class DashboardService {
 
       bookings = await this.bookingModel
         .find({
-          archived,
+          isArchived,
           tourName: tourName,
           createdAt: {
             $gte: startOfDay,
@@ -178,7 +179,7 @@ export class DashboardService {
     } else if (tourName && !date) {
       bookings = await this.bookingModel
         .find({
-          archived,
+          isArchived,
           tourName: tourName,
         })
         .lean();
@@ -188,7 +189,7 @@ export class DashboardService {
       const endOfDay = new Date(newDate.setUTCHours(23, 59, 59, 999));
       bookings = await this.bookingModel
         .find({
-          archived,
+          isArchived,
           createdAt: {
             $gte: startOfDay,
             $lte: endOfDay,
@@ -198,7 +199,7 @@ export class DashboardService {
     } else {
       bookings = await this.bookingModel
         .find({
-          archived,
+          isArchived,
         })
         .lean();
     }

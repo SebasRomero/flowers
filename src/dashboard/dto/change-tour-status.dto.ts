@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, MaxLength } from 'class-validator';
+import { IsNotEmpty, IsOptional, MaxLength } from 'class-validator';
 import { BookingStatus } from 'src/booking/types/booking-status';
 
 export class ChangeTourStatusDto {
@@ -11,7 +11,7 @@ export class ChangeTourStatusDto {
     description: 'The observations',
     type: String,
   })
-  @IsNotEmpty()
   @MaxLength(200)
-  observations: string;
+  @IsOptional()
+  observations: string | null;
 }

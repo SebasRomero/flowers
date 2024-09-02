@@ -14,6 +14,7 @@ import { ContactModule } from './contact/contact.module';
 import { ClientService } from './client/client.service';
 import { ClientModule } from './client/client.module';
 import { TourModule } from './tour/tour.module';
+import { GatewayModule } from './dashboard/websocket/websocket.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -43,6 +44,7 @@ import { TourModule } from './tour/tour.module';
     ContactModule,
     ClientModule,
     TourModule,
+    GatewayModule,
   ],
   providers: [
     { provide: APP_GUARD, useClass: JwtAuthGuard },

@@ -15,4 +15,8 @@ export class UsersService {
     if (!user) return null;
     return { name: user.name, roles: user.roles, username: user.username };
   }
+
+  async findOneUser(username: string): Promise<IUser> | null {
+    return await this.userModel.findOne({ username });
+  }
 }

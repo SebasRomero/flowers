@@ -30,6 +30,10 @@ export class DashboardService {
       false,
     );
 
+    return this.formatBookings(bookings);
+  }
+
+  formatBookings(bookings: IBooking[]) {
     const result = [];
     let elementResults = [];
     if (bookings.length > 0) {
@@ -50,7 +54,6 @@ export class DashboardService {
         elementResults = [];
       });
     }
-
     return result;
   }
 

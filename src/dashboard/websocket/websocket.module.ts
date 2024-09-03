@@ -1,6 +1,5 @@
 import { Module } from '@nestjs/common';
 import { WebsocketGateway } from './websocket.gateway';
-import { MyScheduler } from './websocket.scheduler.module';
 import { DashboardModule } from '../dashboard.module';
 import { DashboardService } from '../dashboard.service';
 import { MongooseModule } from '@nestjs/mongoose';
@@ -27,7 +26,6 @@ import { GatewayService } from './websocket.service';
   providers: [
     WebsocketGateway,
     GatewayService,
-    MyScheduler,
     DashboardService,
     UtilitiesService,
     AuthService,

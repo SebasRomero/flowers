@@ -13,9 +13,10 @@ export class GatewayService {
   ) {}
 
   validateConnection(client: Socket) {
-    let authToken = client.handshake.headers.authentication.toString();
+    let authToken = client.handshake.headers.authentication;
+/*     console.log('authToken:', authToken); */
     if (authToken) {
-      authToken = authToken.substring(7);
+      authToken = authToken.toString().substring(7);
     } else {
       client.disconnect();
       return;
@@ -27,6 +28,7 @@ export class GatewayService {
         secret: this.configService.get<string>('JWT_SECRET'),
       });
     } catch (error) {
+      console.log(error);
       client.disconnect();
       return;
     }

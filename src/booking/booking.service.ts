@@ -62,6 +62,7 @@ export class BookingService {
 
     const client: IClient = {
       name: refactoredBooking.name,
+      email: refactoredBooking.email,
       orderNumber: refactoredBooking.orderNumber,
       phone: refactoredBooking.phone,
       status: refactoredBooking.status,

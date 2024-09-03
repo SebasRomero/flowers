@@ -7,7 +7,7 @@ import {
 import { Server, Socket } from 'socket.io';
 import { GatewayService } from './websocket.service';
 
-@WebSocketGateway({ namespace: '/v1/ws/bookings' })
+@WebSocketGateway({ namespace: 'api/v1/ws/booking' })
 export class WebsocketGateway
   implements OnGatewayConnection, OnGatewayDisconnect
 {

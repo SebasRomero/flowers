@@ -60,7 +60,7 @@ export class BookingService {
 
     const createdBooking = await this.bookingModel.create(refactoredBooking);
 
-    /* this.mail(refactoredBooking); */
+    this.mail(refactoredBooking);
     this.websocketGateway.sendUpdates(refactoredBooking);
 
     const client: IClient = {

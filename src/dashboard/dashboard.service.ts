@@ -1,4 +1,9 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  HttpCode,
+  HttpException,
+  HttpStatus,
+  Injectable,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import mongoose, { Model, Types } from 'mongoose';
 import { Booking } from 'src/booking/schemas/booking.schema';
@@ -271,14 +276,17 @@ export class DashboardService {
   async changeTourPrice(changeTourPrice: ChangeTourPrice) {
     const { price, tourName } = changeTourPrice;
     const tour = await this.tourModel.findOneAndUpdate(
-      { name: TourNames[tourName] },
+      { name: tourName },
       { $set: { price } },
       {
         new: true,
       },
     );
     if (tour) return tour;
-    return [];
+    throw new HttpException(
+      'Error cambiando el precio del tour',
+      HttpStatus.BAD_REQUEST,
+    );
   }
 
   /*   async addTour() {

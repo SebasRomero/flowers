@@ -10,9 +10,7 @@ import { GatewayService } from './websocket.service';
 import { Model } from 'mongoose';
 import { Booking } from 'src/booking/schemas/booking.schema';
 import { InjectModel } from '@nestjs/mongoose';
-import { IBooking } from 'src/booking/types/booking.interface';
 import { DashboardService } from '../dashboard.service';
-import { IdObject } from './websocket.types';
 
 @WebSocketGateway({ namespace: 'api/v1/ws/booking' })
 export class WebsocketGateway
@@ -30,6 +28,7 @@ export class WebsocketGateway
     const user = await this.gatewayService.validateConnection(client);
     if (!user) client.disconnect();
 
+    this.server.emit('update', await this.dashboardService.getBookings({}));
     console.log('Connected');
   }
 
@@ -39,10 +38,11 @@ export class WebsocketGateway
 
   @SubscribeMessage('bookings')
   sendUpdates(data: any) {
-    this.scheduleGetTours();
+    this.server.emit('update', data);
+    /*  this.scheduleGetTours(); */
   }
 
-  async scheduleGetTours() {
+/*   async scheduleGetTours() {
     const previousBookings: IBooking[] = await this.bookingModel.find().lean();
 
     let previousIds: IdObject[] = [];
@@ -75,5 +75,5 @@ export class WebsocketGateway
       .lean();
 
     return newBookings;
-  }
+  } */
 }

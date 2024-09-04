@@ -28,7 +28,7 @@ export class GatewayService {
         secret: this.configService.get<string>('JWT_SECRET'),
       });
     } catch (error) {
-      console.log(error);
+/*       console.log(error); */
       client.disconnect();
       return;
     }

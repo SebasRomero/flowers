@@ -224,49 +224,111 @@ export class DashboardService {
       const newDate = new Date(date);
       const startOfDay = new Date(newDate.setUTCHours(0, 0, 0, 0));
       const endOfDay = new Date(newDate.setUTCHours(23, 59, 59, 999));
-      return this.clientModel
-        .find(
-          {
+
+      return await this.clientModel.aggregate([
+        {
+          $match: {
             orderNumber,
             createdAt: {
               $gte: startOfDay,
               $lte: endOfDay,
             },
           },
-          {},
-          { limit: responsePerPage, skip },
-        )
-        .lean();
+        },
+        {
+          $sort: { createdAt: -1 }, // Sort documents by createdAt in descending order (latest first)
+        },
+        {
+          $group: {
+            _id: '$email', // Group by the email field
+            document: { $first: '$$ROOT' }, // Take the first document in the sorted order (latest document)
+          },
+        },
+        {
+          $replaceRoot: { newRoot: '$document' }, // Replace the root to return the actual document instead of the grouped result
+        },
+        {
+          $limit: skip + responsePerPage,
+        },
+        {
+          $skip: skip,
+        },
+      ]);
     } else if (date && !orderNumber) {
       const newDate = new Date(date);
       const startOfDay = new Date(newDate.setUTCHours(0, 0, 0, 0));
       const endOfDay = new Date(newDate.setUTCHours(23, 59, 59, 999));
-      return this.clientModel
-        .find(
-          {
+      return await this.clientModel.aggregate([
+        {
+          $match: {
             createdAt: {
               $gte: startOfDay,
               $lte: endOfDay,
             },
           },
-          {},
-          { limit: responsePerPage, skip },
-        )
-        .lean();
-    } else if (!date && orderNumber) {
-      return this.clientModel
-        .find(
-          {
-            orderNumber,
+        },
+        {
+          $sort: { createdAt: -1 },
+        },
+        {
+          $group: {
+            _id: '$email',
+            document: { $first: '$$ROOT' },
           },
-          {},
-          { limit: responsePerPage, skip },
-        )
-        .lean();
+        },
+        {
+          $replaceRoot: { newRoot: '$document' },
+        },
+        {
+          $limit: skip + responsePerPage,
+        },
+        {
+          $skip: skip,
+        },
+      ]);
+    } else if (!date && orderNumber) {
+      return await this.clientModel.aggregate([
+        { $match: { orderNumber } },
+        {
+          $sort: { createdAt: -1 },
+        },
+        {
+          $group: {
+            _id: '$email',
+            document: { $first: '$$ROOT' },
+          },
+        },
+        {
+          $replaceRoot: { newRoot: '$document' },
+        },
+        {
+          $limit: skip + responsePerPage,
+        },
+        {
+          $skip: skip,
+        },
+      ]);
     } else {
-      return this.clientModel
-        .find({}, {}, { limit: responsePerPage, skip })
-        .lean();
+      return await this.clientModel.aggregate([
+        {
+          $sort: { createdAt: -1 },
+        },
+        {
+          $group: {
+            _id: '$email',
+            document: { $first: '$$ROOT' },
+          },
+        },
+        {
+          $replaceRoot: { newRoot: '$document' },
+        },
+        {
+          $limit: skip + responsePerPage,
+        },
+        {
+          $skip: skip,
+        },
+      ]);
     }
   }
 

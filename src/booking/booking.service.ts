@@ -11,6 +11,7 @@ import { IBooking } from './types/booking.interface';
 import { BookingStatus } from './types/booking-status';
 import { Client } from 'src/client/schemas/client.schema';
 import { IClient } from 'src/client/types/client.types';
+import { WebsocketGateway } from 'src/dashboard/websocket/websocket.gateway';
 
 @Injectable()
 export class BookingService {
@@ -18,6 +19,7 @@ export class BookingService {
     private utilitiesService: UtilitiesService,
     @InjectModel(Booking.name) private bookingModel: Model<Booking>,
     @InjectModel(Client.name) private clientModel: Model<Client>,
+    private websocketGateway: WebsocketGateway,
     private mailService: MailService,
   ) {}
 
@@ -58,7 +60,8 @@ export class BookingService {
 
     const createdBooking = await this.bookingModel.create(refactoredBooking);
 
-    this.mail(refactoredBooking);
+    /* this.mail(refactoredBooking); */
+    this.websocketGateway.sendUpdates(refactoredBooking);
 
     const client: IClient = {
       name: refactoredBooking.name,

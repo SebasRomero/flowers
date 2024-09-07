@@ -76,13 +76,17 @@ export class BookingService {
   }
 
   mail(refactoredBooking: IBooking): void {
+    const actualDate = new Date(refactoredBooking.dateStartingTour);
+    const day = actualDate.getDate();
+    const month = actualDate.getMonth() + 1;
+    const year = actualDate.getFullYear();
     this.mailService.sendBookingEmail({
       email: refactoredBooking.email,
       name: this.utilitiesService.capitalizeFirstLetter(refactoredBooking.name),
       tourName: refactoredBooking.tourName,
       orderNumber: refactoredBooking.orderNumber,
       numberOfPersons: refactoredBooking.numberOfPersons.toString(),
-      dateStartingTour: refactoredBooking.dateStartingTour,
+      dateStartingTour: `${month}/${day}/${year}`,
     });
 
     this.mailService.sendBookingEmailTeam({
@@ -91,7 +95,7 @@ export class BookingService {
       tourName: refactoredBooking.tourName,
       orderNumber: refactoredBooking.orderNumber,
       numberOfPersons: refactoredBooking.numberOfPersons.toString(),
-      dateStartingTour: refactoredBooking.dateStartingTour,
+      dateStartingTour: `${month}/${day}/${year}`,
     });
   }
 }

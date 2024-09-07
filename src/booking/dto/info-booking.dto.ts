@@ -4,5 +4,5 @@ export interface IInfoBooking {
   tourName: string;
   orderNumber: string;
   numberOfPersons: string;
-  dateStartingTour: Date;
+  dateStartingTour: string;
 }

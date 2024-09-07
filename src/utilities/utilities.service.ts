@@ -61,9 +61,9 @@ export class UtilitiesService {
         return `Hace 1 hora`;
       } else {
         if (diffHours > 23) {
-          const month = actualDate.getMonth();
-          const day = actualDate.getDate();
-          const year = actualDate.getFullYear();
+          const month = lastDate.getMonth();
+          const day = lastDate.getDate();
+          const year = lastDate.getFullYear();
 
           return `${Months[month]} ${day}, ${year}`;
         }

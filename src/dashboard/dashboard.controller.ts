@@ -20,6 +20,7 @@ import { GetClientsResponse } from './responses/get-client.response';
 import { GetToursResponse } from './responses/get-tours.response';
 import { ChangeTourPrice } from './dto/change-tour-price.dto';
 import { ChangeArchivedStatusDto } from './dto/change-archived-status.dto';
+import { Public } from 'src/auth/decorators/public.decorator';
 
 @Controller('dashboard')
 export class DashboardController {
@@ -60,7 +61,7 @@ export class DashboardController {
   }
 
   @Get('tours')
-  @Roles(Role.Admin)
+  @Public()
   async getTours(): Promise<GetToursResponse> {
     return {
       message: 'Tours',

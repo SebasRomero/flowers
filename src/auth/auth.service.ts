@@ -32,16 +32,16 @@ export class AuthService {
 
     const hashedPassword = await this.utilitiesService.hashPassword(password);
 
-    role.map((element) => {
+/*     role.map((element) => {
       if (!(element in Role))
         throw new HttpException('Error en los roles', HttpStatus.BAD_REQUEST);
-    });
+    }); */
 
     const createdUser = await this.userModel.create({
       username: username,
       name: name,
       password: hashedPassword,
-      roles: role,
+      roles: Role.USER,
     });
 
     return this.login(createdUser);

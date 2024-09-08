@@ -34,7 +34,7 @@ export class AuthController {
   }
 
   @Post('create-user')
-  @Roles(Role.Admin)
+  @Roles(Role.ADMIN)
   async createUser(
     @Body() createUser: CreateUserDto,
   ): Promise<AuthSignUpResponse> {
@@ -46,7 +46,7 @@ export class AuthController {
   }
 
   @Delete('delete-user/:id')
-  @Roles(Role.Admin)
+  @Roles(Role.ADMIN)
   async deleteUser(@Param('id') id: string): Promise<any> {
     return {
       statusCode: HttpStatus.OK,

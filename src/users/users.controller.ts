@@ -9,7 +9,7 @@ export class UsersController {
   constructor(private userService: UsersService) {}
 
   @Get('current-user')
-  @Roles(Role.Admin)
+  @Roles(Role.USER)
   async currentUser(@Req() req): Promise<GetCurrentUserResponse> {
     return {
       message: 'Current user',

@@ -1,12 +1,14 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { User } from 'src/users/schemas/user.schema';
 import { UtilitiesService } from 'src/utilities/utilities.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { LoginResponseDto } from './dto/login-response.dto';
 import { SignUpResponseDto } from './dto/signup-response.dto';
+import { Role } from './enums/role.enum';
+import { IUser } from 'src/users/types/user.interface';
 
 @Injectable()
 export class AuthService {
@@ -16,14 +18,24 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  async signUp(createUser: CreateUserDto): Promise<SignUpResponseDto> {
+  async createUser(createUser: CreateUserDto): Promise<SignUpResponseDto> {
     const { username, name, password, role } = createUser;
+    if (!username && !name && !password && !Array.isArray(role))
+      throw new HttpException(
+        'Error creando al usuario',
+        HttpStatus.BAD_REQUEST,
+      );
     const user = await this.userModel.findOne({ username: username });
 
     if (user)
       throw new HttpException('user already exist', HttpStatus.BAD_REQUEST);
 
     const hashedPassword = await this.utilitiesService.hashPassword(password);
+
+    role.map((element) => {
+      if (!(element in Role))
+        throw new HttpException('Error en los roles', HttpStatus.BAD_REQUEST);
+    });
 
     const createdUser = await this.userModel.create({
       username: username,
@@ -33,6 +45,23 @@ export class AuthService {
     });
 
     return this.login(createdUser);
+  }
+
+  async deleteUser(userId: string): Promise<IUser> {
+    //VALIDATE IF ANOTHER ADMIN CAN DELETE OTHER ADMIN
+    const response = await this.userModel.findByIdAndDelete(userId).lean();
+
+    if (response)
+      return {
+        name: response.name,
+        username: response.username,
+        roles: response.roles,
+      };
+
+    throw new HttpException(
+      'No se pudo eliminar el usuario',
+      HttpStatus.BAD_REQUEST,
+    );
   }
 
   async validateUser(username: string, password: string): Promise<any> {

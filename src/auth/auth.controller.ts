@@ -1,8 +1,11 @@
 import {
   Body,
   Controller,
+  Delete,
   HttpStatus,
+  Param,
   Post,
+  Query,
   Request,
   UseGuards,
 } from '@nestjs/common';
@@ -30,13 +33,25 @@ export class AuthController {
     };
   }
 
-  @Post('signup')
+  @Post('create-user')
   @Roles(Role.Admin)
-  async signup(@Body() createUser: CreateUserDto): Promise<AuthSignUpResponse> {
+  async createUser(
+    @Body() createUser: CreateUserDto,
+  ): Promise<AuthSignUpResponse> {
     return {
       statusCode: HttpStatus.OK,
-      message: 'Signed up',
-      data: await this.authService.signUp(createUser),
+      message: 'User created',
+      data: await this.authService.createUser(createUser),
+    };
+  }
+
+  @Delete('delete-user/:id')
+  @Roles(Role.Admin)
+  async deleteUser(@Param('id') id: string): Promise<any> {
+    return {
+      statusCode: HttpStatus.OK,
+      message: 'User deleted',
+      data: await this.authService.deleteUser(id),
     };
   }
 }

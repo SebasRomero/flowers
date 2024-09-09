@@ -26,7 +26,7 @@ import { Public } from 'src/auth/decorators/public.decorator';
 export class DashboardController {
   constructor(private readonly dashBoardService: DashboardService) {}
   @Get()
-  @Roles(Role.USER)
+  @Roles(Role.AGENT)
   async getBookings(
     @Query() query: IQueryGetBookings,
   ): Promise<GetBookingTourFormResponse> {
@@ -37,7 +37,7 @@ export class DashboardController {
     };
   }
   @Get('archived')
-  @Roles(Role.USER)
+  @Roles(Role.AGENT)
   async getArchivedBookings(
     @Query() query: IQueryGetBookings,
   ): Promise<GetBookingTourFormResponse> {
@@ -49,7 +49,7 @@ export class DashboardController {
   }
 
   @Get('client')
-  @Roles(Role.USER)
+  @Roles(Role.AGENT)
   async getClients(
     @Query() query: IQueryGetClient,
   ): Promise<GetClientsResponse> {
@@ -70,7 +70,7 @@ export class DashboardController {
     };
   }
   @Put('tours')
-  @Roles(Role.USER)
+  @Roles(Role.AGENT)
   async changePriceTour(
     @Body() changeTourPrice: ChangeTourPrice,
   ): Promise<GetToursResponse> {
@@ -82,7 +82,7 @@ export class DashboardController {
   }
 
   @Get(':id')
-  @Roles(Role.USER)
+  @Roles(Role.AGENT)
   async getBooking(
     @Param('id') id: string,
   ): Promise<GetBookingTourFormResponse> {
@@ -94,7 +94,7 @@ export class DashboardController {
   }
 
   @Put('archived/:id')
-  @Roles(Role.USER)
+  @Roles(Role.AGENT)
   async archiveBook(
     @Param('id') id: string,
     @Body() changeArchivedStatus: ChangeArchivedStatusDto,
@@ -110,7 +110,7 @@ export class DashboardController {
   }
 
   @Put('/change-status/:id')
-  @Roles(Role.USER)
+  @Roles(Role.AGENT)
   async changeStatus(
     @Req() req,
     @Param('id') id: string,

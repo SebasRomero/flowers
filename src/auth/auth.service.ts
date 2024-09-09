@@ -1,7 +1,7 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model, Types } from 'mongoose';
+import { Model } from 'mongoose';
 import { User } from 'src/users/schemas/user.schema';
 import { UtilitiesService } from 'src/utilities/utilities.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -19,8 +19,8 @@ export class AuthService {
   ) {}
 
   async createUser(createUser: CreateUserDto): Promise<SignUpResponseDto> {
-    const { username, name, password, role } = createUser;
-    if (!username && !name && !password && !Array.isArray(role))
+    const { username, name, password } = createUser;
+    if (!username && !name && !password /*  && !Array.isArray(role) */)
       throw new HttpException(
         'Error creando al usuario',
         HttpStatus.BAD_REQUEST,
@@ -32,7 +32,7 @@ export class AuthService {
 
     const hashedPassword = await this.utilitiesService.hashPassword(password);
 
-/*     role.map((element) => {
+    /*     role.map((element) => {
       if (!(element in Role))
         throw new HttpException('Error en los roles', HttpStatus.BAD_REQUEST);
     }); */
@@ -41,7 +41,7 @@ export class AuthService {
       username: username,
       name: name,
       password: hashedPassword,
-      roles: Role.USER,
+      roles: Role.AGENT,
     });
 
     return this.login(createdUser);

@@ -1,8 +1,8 @@
 export enum Role {
-  USER = 'user',
+  AGENT = 'agent',
   ADMIN = 'admin',
 }
 
-export enum RoleUser {
-  USER = 'user',
+export enum RoleAgent {
+  AGENT = 'agent',
 }

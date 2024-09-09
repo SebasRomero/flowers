@@ -1,9 +1,4 @@
-import {
-  HttpCode,
-  HttpException,
-  HttpStatus,
-  Injectable,
-} from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import mongoose, { Model, Types } from 'mongoose';
 import { Booking } from 'src/booking/schemas/booking.schema';
@@ -14,7 +9,6 @@ import { UtilitiesService } from 'src/utilities/utilities.service';
 import { IQueryGetBookings, IQueryGetClient } from './types/query.interface';
 import { Client } from 'src/client/schemas/client.schema';
 import { Tour } from 'src/tour/schema/tour.schema';
-import { TourNames } from 'src/booking/types/submit-booking.types';
 import { ChangeTourPrice } from './dto/change-tour-price.dto';
 import { ChangeArchivedStatusDto } from './dto/change-archived-status.dto';
 @Injectable()

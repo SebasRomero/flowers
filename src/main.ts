@@ -13,6 +13,11 @@ async function bootstrap() {
     origin: [
       /^https:\/\/(\w+\.)?diamondtoursrd\.info$/,
       /^https:\/\/(\w+\.)?diamondtoursrd\.com$/,
+      /^http:\/\/localhost(:3000)?$/,
+      /^http:\/\/localhost(:5173)?$/,
+      /^http:\/\/localhost(:4731)?$/,
+      /^http:\/\/localhost(:4133)?$/,
+      /^http:\/\/localhost(:5490)?$/,
     ],
   });
   app.useGlobalPipes(new ValidationPipe());

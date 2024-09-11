@@ -7,10 +7,15 @@ import { ValidationPipe } from '@nestjs/common';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.setGlobalPrefix('api/v1');
-  app.enableCors();
-  app.useGlobalPipes(new ValidationPipe());
-
   const config = app.get(ConfigService);
+
+  app.enableCors({
+    origin: [
+      /^https:\/\/(\w+\.)?diamondtoursrd\.info$/,
+      /^https:\/\/(\w+\.)?diamondtoursrd\.com$/,
+    ],
+  });
+  app.useGlobalPipes(new ValidationPipe());
   const port = config.get('PORT');
   const BASE_URL = 'https://unpkg.com/swagger-ui-dist@^5';
 

@@ -1,5 +1,9 @@
 export enum TourNames {
   COCO_BONGO = 'Coco Bongo',
+  COCO_BONGO_REGULAR_TICKET = 'Coco Bongo Regular Ticket',
+  COCO_BONGO_PREMIUM_TICKET = 'Coco Bongo Premium Ticket',
+  COCO_BONGO_GOLDEN_MEMBER = 'Coco Bongo Golden Member',
+  COCO_BONGO_FRONT_ROW = 'Coco Bongo Front Row',
   ISLA_SAONA = 'Isla Saona',
   PUNTA_CANA_TOUR_BUGGY = 'Punta Cana Tour Buggy',
   MONKEYLAND_TOUR = 'Monkeyland Tour',
@@ -14,6 +18,10 @@ export enum TourNames {
 
 export const ToursArray = [
   'Coco Bongo',
+  'Coco Bongo Regular Ticket',
+  'Coco Bongo Premium Ticket',
+  'Coco Bongo Golden Member',
+  'Coco Bongo Front Row',
   'Isla Saona',
   'Punta Cana Tour Buggy',
   'Monkeyland Tour',

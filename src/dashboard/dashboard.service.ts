@@ -331,10 +331,18 @@ export class DashboardService {
     return await this.tourModel.find().sort({ createdAt: -1 });
   }
   async changeTourPrice(changeTourPrice: ChangeTourPrice) {
-    const { price, tourName } = changeTourPrice;
+    const { price, tourName, discountPercentage } = changeTourPrice;
+
+    const discount = this.calculateDiscount(price, discountPercentage);
     const tour = await this.tourModel.findOneAndUpdate(
       { name: tourName },
-      { $set: { price } },
+      {
+        $set: {
+          price,
+          discountPercentage,
+          discountPrice: discount,
+        },
+      },
       {
         new: true,
       },
@@ -349,13 +357,27 @@ export class DashboardService {
   async addTour(addTour: AddTourDto) {
     const { price, tourName } = addTour;
 
-    const tourExist = this.tourModel.findOne({ name: tourName }).lean();
+    const tourExist = await this.tourModel.findOne({ name: tourName });
     if (tourExist)
       throw new HttpException('El tour ya existe', HttpStatus.BAD_REQUEST);
 
-    const response = this.tourModel.create({ name: tourName, price });
+    const discount = this.calculateDiscount(
+      addTour.price,
+      addTour.discountPercentage,
+    );
+
+    const response = this.tourModel.create({
+      name: tourName,
+      price,
+      discountPercentage: addTour.discountPercentage,
+      discountPrice: discount,
+    });
 
     return response;
+  }
+
+  calculateDiscount(price: number, discount: number): number {
+    return price - (discount / 100) * price;
   }
 
   /*   async addTour() {

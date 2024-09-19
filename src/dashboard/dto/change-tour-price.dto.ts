@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsNumber } from 'class-validator';
+import { IsNotEmpty, IsNumber, Max, Min } from 'class-validator';
 import { TourNames } from 'src/booking/types/submit-booking.types';
 
 export class ChangeTourPrice {
@@ -11,4 +11,11 @@ export class ChangeTourPrice {
   @IsNotEmpty()
   @IsNumber()
   price: number;
+
+  @ApiProperty({ description: 'Discount percentage', type: Number })
+  @IsNumber()
+  @IsNotEmpty()
+  @Min(0)
+  @Max(100)
+  discountPercentage: number;
 }

@@ -13,6 +13,12 @@ export class Tour {
   price: number;
 
   @Prop()
+  discountPercentage: number;
+
+  @Prop()
+  discountPrice: number;
+
+  @Prop()
   createdAt: Date;
 
   @Prop()

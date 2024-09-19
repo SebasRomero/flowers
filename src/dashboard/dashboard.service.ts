@@ -11,6 +11,7 @@ import { Client } from 'src/client/schemas/client.schema';
 import { Tour } from 'src/tour/schema/tour.schema';
 import { ChangeTourPrice } from './dto/change-tour-price.dto';
 import { ChangeArchivedStatusDto } from './dto/change-archived-status.dto';
+import { AddTourDto } from './dto/add-tour.dto';
 @Injectable()
 export class DashboardService {
   constructor(
@@ -343,6 +344,18 @@ export class DashboardService {
       'Error cambiando el precio del tour',
       HttpStatus.BAD_REQUEST,
     );
+  }
+
+  async addTour(addTour: AddTourDto) {
+    const { price, tourName } = addTour;
+
+    const tourExist = this.tourModel.findOne({ name: tourName }).lean();
+    if (tourExist)
+      throw new HttpException('El tour ya existe', HttpStatus.BAD_REQUEST);
+
+    const response = this.tourModel.create({ name: tourName, price });
+
+    return response;
   }
 
   /*   async addTour() {

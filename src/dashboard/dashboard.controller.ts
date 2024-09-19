@@ -4,6 +4,7 @@ import {
   Get,
   HttpStatus,
   Param,
+  Post,
   Put,
   Query,
   Req,
@@ -21,6 +22,7 @@ import { GetToursResponse } from './responses/get-tours.response';
 import { ChangeTourPrice } from './dto/change-tour-price.dto';
 import { ChangeArchivedStatusDto } from './dto/change-archived-status.dto';
 import { Public } from 'src/auth/decorators/public.decorator';
+import { AddTourDto } from './dto/add-tour.dto';
 
 @Controller('dashboard')
 export class DashboardController {
@@ -78,6 +80,16 @@ export class DashboardController {
       message: 'Price changed',
       statusCode: HttpStatus.OK,
       data: await this.dashBoardService.changeTourPrice(changeTourPrice),
+    };
+  }
+
+  @Post('tours')
+  @Roles(Role.AGENT)
+  async addTour(@Body() addTour: AddTourDto): Promise<GetToursResponse> {
+    return {
+      message: 'Tour added',
+      statusCode: HttpStatus.CREATED,
+      data: await this.dashBoardService.addTour(addTour),
     };
   }
 

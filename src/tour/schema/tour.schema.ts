@@ -11,6 +11,12 @@ export class Tour {
 
   @Prop()
   price: number;
+
+  @Prop()
+  createdAt: Date;
+
+  @Prop()
+  updatedAt: Date;
 }
 
 export const TourSchema = SchemaFactory.createForClass(Tour);

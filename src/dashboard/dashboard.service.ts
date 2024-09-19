@@ -327,7 +327,7 @@ export class DashboardService {
   }
 
   async getTours() {
-    return await this.tourModel.find();
+    return await this.tourModel.find().sort({ createdAt: -1 });
   }
   async changeTourPrice(changeTourPrice: ChangeTourPrice) {
     const { price, tourName } = changeTourPrice;

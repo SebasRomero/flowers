@@ -66,9 +66,12 @@ export class AuthService {
   }
 
   async getUsers(): Promise<GetUsersDto[]> {
-    const response: GetUsersDto[] = await this.userModel.find({
-      roles: { $nin: ['admin'] },
-    });
+    const response: GetUsersDto[] = await this.userModel.find(
+      {
+        roles: { $nin: ['admin'] },
+      },
+      { password: false, roles: false },
+    );
     return response;
   }
 

@@ -2,10 +2,10 @@ import {
   Body,
   Controller,
   Delete,
+  Get,
   HttpStatus,
   Param,
   Post,
-  Query,
   Request,
   UseGuards,
 } from '@nestjs/common';
@@ -18,6 +18,7 @@ import { Role } from './enums/role.enum';
 import { AuthLoginResponse } from './responses/auth-login.response';
 import { AuthSignUpResponse } from './responses/auth-signup.response';
 import { LoginUserDto } from './dto/login-user.dto';
+import { GetUserResponse } from './responses/get-user.response';
 
 @Controller('auth')
 export class AuthController {
@@ -42,6 +43,16 @@ export class AuthController {
       statusCode: HttpStatus.OK,
       message: 'User created',
       data: await this.authService.createUser(createUser),
+    };
+  }
+
+  @Get('users')
+  @Roles(Role.ADMIN)
+  async getUsers(): Promise<GetUserResponse> {
+    return {
+      statusCode: HttpStatus.OK,
+      message: 'Users',
+      data: await this.authService.getUsers(),
     };
   }
 

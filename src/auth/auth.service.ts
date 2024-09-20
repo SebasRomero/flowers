@@ -9,6 +9,7 @@ import { LoginResponseDto } from './dto/login-response.dto';
 import { SignUpResponseDto } from './dto/signup-response.dto';
 import { Role } from './enums/role.enum';
 import { IUser } from 'src/users/types/user.interface';
+import { GetUsersDto } from './dto/get-user-response.dto';
 
 @Injectable()
 export class AuthService {
@@ -62,6 +63,13 @@ export class AuthService {
       'No se pudo eliminar el usuario',
       HttpStatus.BAD_REQUEST,
     );
+  }
+
+  async getUsers(): Promise<GetUsersDto[]> {
+    const response: GetUsersDto[] = await this.userModel.find({
+      roles: { $nin: ['admin'] },
+    });
+    return response;
   }
 
   async validateUser(username: string, password: string): Promise<any> {

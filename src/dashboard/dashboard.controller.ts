@@ -15,7 +15,6 @@ import { DashboardService } from './dashboard.service';
 import { GetBookingTourFormResponse } from './responses/get-booking-tour-form.response';
 import { ArchiveBookingTourResponse } from './responses/archive-tour-booking.response';
 import { ChangeTourStatusDto } from './dto/change-tour-status.dto';
-import { Types } from 'mongoose';
 import { IQueryGetBookings, IQueryGetClient } from './types/query.interface';
 import { GetClientsResponse } from './responses/get-client.response';
 import { GetToursResponse } from './responses/get-tours.response';
@@ -38,6 +37,7 @@ export class DashboardController {
       data: await this.dashBoardService.getBookings(query),
     };
   }
+
   @Get('archived')
   @Roles(Role.AGENT)
   async getArchivedBookings(
@@ -71,6 +71,7 @@ export class DashboardController {
       data: await this.dashBoardService.getTours(),
     };
   }
+
   @Put('tours')
   @Roles(Role.AGENT)
   async changePriceTour(
@@ -133,7 +134,7 @@ export class DashboardController {
       message: 'Status changed',
       data: await this.dashBoardService.changeBookingStatus(
         req.user.username,
-        new Types.ObjectId(id),
+        id,
         status,
       ),
     };

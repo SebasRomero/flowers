@@ -1,9 +1,7 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import mongoose, { Model, Types } from 'mongoose';
-import { Booking } from 'src/booking/schemas/booking.schema';
+import { Model } from 'mongoose';
 import { validateStatusChange } from './dashboard.functions';
-import { IBooking } from 'src/booking/types/booking.interface';
 import { ChangeTourStatusDto } from './dto/change-tour-status.dto';
 import { UtilitiesService } from 'src/utilities/utilities.service';
 import { IQueryGetBookings, IQueryGetClient } from './types/query.interface';
@@ -12,10 +10,10 @@ import { Tour } from 'src/tour/schema/tour.schema';
 import { ChangeTourPrice } from './dto/change-tour-price.dto';
 import { ChangeArchivedStatusDto } from './dto/change-archived-status.dto';
 import { AddTourDto } from './dto/add-tour.dto';
+import { IOrder } from 'src/client/types/order.type';
 @Injectable()
 export class DashboardService {
   constructor(
-    @InjectModel(Booking.name) private readonly bookingModel: Model<Booking>,
     @InjectModel(Client.name) private readonly clientModel: Model<Client>,
     @InjectModel(Tour.name) private readonly tourModel: Model<Tour>,
     private utilitiesService: UtilitiesService,
@@ -24,20 +22,16 @@ export class DashboardService {
   async getBookings(query: IQueryGetBookings) {
     const { tourName, date } = query;
 
-    const bookings: IBooking[] = await this.getBooksByFilter(
-      tourName,
-      date,
-      false,
-    );
+    const orders: IOrder[] = await this.getBooksByFilter(tourName, date, false);
 
-    return this.formatBookings(bookings);
+    return this.formatBookings(orders);
   }
 
-  formatBookings(bookings: IBooking[]) {
+  formatBookings(orders: IOrder[]) {
     const result = [];
     let elementResults = [];
-    if (bookings.length > 0) {
-      bookings.map((element) => {
+    if (orders.length > 0) {
+      orders.map((element) => {
         element.changeHistory.map((elementHistory) => {
           const actualElementHistory = {
             description: elementHistory.description,
@@ -57,25 +51,45 @@ export class DashboardService {
     return result;
   }
 
-  async getBooking(id: string) {
-    const booking = await this.bookingModel.findOne({ orderNumber: id }).lean();
-    if (booking) return booking;
+  async getBooking(orderNumber: string) {
+    const order: IOrder[] = await this.clientModel.aggregate([
+      {
+        $unwind: '$orders',
+      },
+      {
+        $match: {
+          'orders.orderNumber': orderNumber,
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          email: '$orders.email',
+          name: '$orders.name',
+          orderNumber: '$orders.orderNumber',
+          statusOrder: '$orders.statusOrder',
+          dateStartingTour: '$orders.dateStartingTour',
+          numberOfPersons: '$orders.numberOfPersons',
+          phone: '$orders.phone',
+          tourName: '$orders.tourName',
+          isArchived: '$orders.isArchived',
+          changeHistory: '$orders.changeHistory',
+        },
+      },
+    ]);
+    if (order.length != 0) return order;
     return [];
   }
 
   async getArchivedBookings(query) {
     const { tourName, date } = query;
 
-    const bookings: IBooking[] = await this.getBooksByFilter(
-      tourName,
-      date,
-      true,
-    );
+    const orders: IOrder[] = await this.getBooksByFilter(tourName, date, true);
 
     const result = [];
     let elementResults = [];
-    if (bookings.length > 0) {
-      bookings.map((element) => {
+    if (orders.length > 0) {
+      orders.map((element) => {
         element.changeHistory.map((elementHistory) => {
           const actualElementHistory = {
             description: elementHistory.description,
@@ -97,34 +111,77 @@ export class DashboardService {
   }
 
   async archiveBooking(
-    id: string,
+    orderNumber: string,
     changeArchivedStatus: ChangeArchivedStatusDto,
   ) {
     const { isArchived } = changeArchivedStatus;
-    const newId = new mongoose.Types.ObjectId(id);
-    const bookingUpdated = await this.bookingModel
-      .findOneAndUpdate({ _id: newId }, { $set: { isArchived } }, { new: true })
+
+    /* const newId = new mongoose.Types.ObjectId(id); */
+
+    await this.clientModel.findOneAndUpdate(
+      { 'orders.orderNumber': orderNumber }, // Match by orderNumber
+      {
+        $set: {
+          'orders.$.isArchived': isArchived, // Update the isArchived field
+        },
+      },
+      { new: true },
+    );
+
+    const updatedOrder = await this.clientModel
+      .findOne(
+        { 'orders.orderNumber': orderNumber }, // Match the same order by orderNumber
+        { 'orders.$': 1 }, // Return only the updated order in the orders array
+      )
       .lean();
 
-    if (!bookingUpdated)
+    if (!updatedOrder)
       throw new HttpException(
         'Error archivando la reserva',
         HttpStatus.BAD_REQUEST,
       );
 
-    return bookingUpdated;
+    return updatedOrder.orders[0];
   }
 
   async changeBookingStatus(
     username: string,
-    id: Types.ObjectId,
+    orderNumber: string,
     newStatus: ChangeTourStatusDto,
-  ): Promise<IBooking> {
-    let booking = await this.bookingModel.findById(id).lean();
-    const currentStatus = booking.status;
+  ): Promise<IOrder> {
+    let order: IOrder[] = await this.clientModel.aggregate([
+      {
+        $unwind: '$orders',
+      },
+      {
+        $match: {
+          'orders.orderNumber': orderNumber,
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          email: '$orders.email',
+          name: '$orders.name',
+          orderNumber: '$orders.orderNumber',
+          statusOrder: '$orders.statusOrder',
+          dateStartingTour: '$orders.dateStartingTour',
+          numberOfPersons: '$orders.numberOfPersons',
+          phone: '$orders.phone',
+          tourName: '$orders.tourName',
+          isArchived: '$orders.isArchived',
+          changeHistory: '$orders.changeHistory',
+        },
+      },
+    ]);
+    if (order.length == 0) {
+      throw new HttpException('No se encontró el tour', HttpStatus.BAD_REQUEST);
+    }
+    const actualOrder: IOrder = order[0];
+    const currentStatus = actualOrder.statusOrder;
 
     if (validateStatusChange(currentStatus, newStatus.status)) {
-      const actualHistory = booking.changeHistory;
+      const actualHistory = actualOrder.changeHistory;
       actualHistory.push({
         observations: newStatus.observations,
         description: `${username} cambió el estado a ${newStatus.status}`,
@@ -132,24 +189,18 @@ export class DashboardService {
         newStatus: newStatus.status,
         lastStatus: currentStatus,
       });
-      booking = await this.bookingModel.findByIdAndUpdate(
-        id,
+      order = await this.clientModel.findOneAndUpdate(
+        { 'orders.orderNumber': orderNumber },
         {
-          status: newStatus.status,
-          changeHistory: actualHistory,
+          $set: {
+            'orders.$.statusOrder': newStatus.status,
+            'orders.$.changeHistory': actualHistory,
+          },
         },
         { new: true },
       );
 
-      await this.clientModel.updateOne(
-        { orderNumber: booking.orderNumber },
-        {
-          $set: {
-            status: newStatus.status,
-          },
-        },
-      );
-      return booking;
+      return actualOrder;
     }
 
     throw new HttpException(
@@ -162,51 +213,133 @@ export class DashboardService {
     tourName: string,
     date: string,
     isArchived: boolean,
-  ): Promise<IBooking[]> {
-    let bookings: IBooking[];
+  ): Promise<IOrder[]> {
+    let orders: IOrder[];
     if (tourName && date) {
       const newDate = new Date(date);
       const startOfDay = new Date(newDate.setUTCHours(0, 0, 0, 0));
       const endOfDay = new Date(newDate.setUTCHours(23, 59, 59, 999));
 
-      bookings = await this.bookingModel
-        .find({
-          isArchived,
-          tourName: tourName,
-          createdAt: {
-            $gte: startOfDay,
-            $lte: endOfDay,
+      orders = await this.clientModel.aggregate([
+        {
+          $unwind: '$orders',
+        },
+        {
+          $match: {
+            'orders.isArchived': isArchived,
+            'orders.createdAt': {
+              $gte: startOfDay,
+              $lte: endOfDay,
+            },
+            'orders.tourName': tourName,
           },
-        })
-        .lean();
+        },
+        {
+          $project: {
+            _id: 0,
+            email: '$orders.email',
+            name: '$orders.name',
+            orderNumber: '$orders.orderNumber',
+            statusOrder: '$orders.statusOrder',
+            dateStartingTour: '$orders.dateStartingTour',
+            numberOfPersons: '$orders.numberOfPersons',
+            phone: '$orders.phone',
+            tourName: '$orders.tourName',
+            isArchived: '$orders.isArchived',
+            changeHistory: '$orders.changeHistory',
+          },
+        },
+      ]);
     } else if (tourName && !date) {
-      bookings = await this.bookingModel
-        .find({
-          isArchived,
-          tourName: tourName,
-        })
-        .lean();
+      orders = await this.clientModel.aggregate([
+        {
+          $unwind: '$orders',
+        },
+        {
+          $match: {
+            'orders.isArchived': isArchived,
+            'orders.tourName': tourName,
+          },
+        },
+        {
+          $project: {
+            _id: 0,
+            email: '$orders.email',
+            name: '$orders.name',
+            orderNumber: '$orders.orderNumber',
+            statusOrder: '$orders.statusOrder',
+            dateStartingTour: '$orders.dateStartingTour',
+            numberOfPersons: '$orders.numberOfPersons',
+            phone: '$orders.phone',
+            tourName: '$orders.tourName',
+            isArchived: '$orders.isArchived',
+            changeHistory: '$orders.changeHistory',
+          },
+        },
+      ]);
     } else if (!tourName && date) {
       const newDate = new Date(date);
       const startOfDay = new Date(newDate.setUTCHours(0, 0, 0, 0));
       const endOfDay = new Date(newDate.setUTCHours(23, 59, 59, 999));
-      bookings = await this.bookingModel
-        .find({
-          isArchived,
-          createdAt: {
-            $gte: startOfDay,
-            $lte: endOfDay,
+
+      orders = await this.clientModel.aggregate([
+        {
+          $unwind: '$orders',
+        },
+        {
+          $match: {
+            'orders.isArchived': isArchived,
+            'orders.createdAt': {
+              $gte: startOfDay,
+              $lte: endOfDay,
+            },
           },
-        })
-        .lean();
+        },
+        {
+          $project: {
+            _id: 0,
+            email: '$orders.email',
+            name: '$orders.name',
+            orderNumber: '$orders.orderNumber',
+            statusOrder: '$orders.statusOrder',
+            dateStartingTour: '$orders.dateStartingTour',
+            numberOfPersons: '$orders.numberOfPersons',
+            phone: '$orders.phone',
+            tourName: '$orders.tourName',
+            isArchived: '$orders.isArchived',
+            changeHistory: '$orders.changeHistory',
+          },
+        },
+      ]);
     } else {
-      bookings = await this.bookingModel
-        .find({
-          isArchived,
-        })
-        .lean();
+      orders = await this.clientModel.aggregate([
+        {
+          $unwind: '$orders',
+        },
+        {
+          $match: {
+            'orders.isArchived': isArchived,
+          },
+        },
+        {
+          $project: {
+            _id: 0,
+            email: '$orders.email',
+            name: '$orders.name',
+            orderNumber: '$orders.orderNumber',
+            statusOrder: '$orders.statusOrder',
+            dateStartingTour: '$orders.dateStartingTour',
+            numberOfPersons: '$orders.numberOfPersons',
+            phone: '$orders.phone',
+            tourName: '$orders.tourName',
+            isArchived: '$orders.isArchived',
+            changeHistory: '$orders.changeHistory',
+          },
+        },
+      ]);
     }
-    return bookings;
+
+    return orders;
   }
 
   async getClients(query: IQueryGetClient) {
@@ -220,110 +353,117 @@ export class DashboardService {
       const startOfDay = new Date(newDate.setUTCHours(0, 0, 0, 0));
       const endOfDay = new Date(newDate.setUTCHours(23, 59, 59, 999));
 
-      return await this.clientModel.aggregate([
-        {
-          $match: {
-            orderNumber,
-            createdAt: {
-              $gte: startOfDay,
-              $lte: endOfDay,
+      const clients = await this.clientModel
+        .find(
+          {
+            orders: {
+              $elemMatch: {
+                orderNumber: orderNumber,
+                createdAt: { $gte: startOfDay, $lte: endOfDay },
+              },
             },
           },
-        },
-        {
-          $sort: { createdAt: -1 }, // Sort documents by createdAt in descending order (latest first)
-        },
-        {
-          $group: {
-            _id: '$email', // Group by the email field
-            document: { $first: '$$ROOT' }, // Take the first document in the sorted order (latest document)
-          },
-        },
-        {
-          $replaceRoot: { newRoot: '$document' }, // Replace the root to return the actual document instead of the grouped result
-        },
-        {
-          $limit: skip + responsePerPage,
-        },
-        {
-          $skip: skip,
-        },
-      ]);
+          {},
+          { limit: skip + responsePerPage, skip },
+        )
+        .lean();
+
+      const response = [];
+
+      clients.map((element) => {
+        const lastOrder = element.orders[element.orders.length - 1];
+        response.push({
+          name: element.name,
+          email: element.email,
+          phone: element.phone,
+          orderNumber: lastOrder.orderNumber,
+          status: lastOrder.statusOrder,
+          createdAt: lastOrder.createdAt,
+        });
+      });
+      return response;
     } else if (date && !orderNumber) {
       const newDate = new Date(date);
       const startOfDay = new Date(newDate.setUTCHours(0, 0, 0, 0));
       const endOfDay = new Date(newDate.setUTCHours(23, 59, 59, 999));
-      return await this.clientModel.aggregate([
-        {
-          $match: {
-            createdAt: {
-              $gte: startOfDay,
-              $lte: endOfDay,
+
+      const clients = await this.clientModel
+        .find(
+          {
+            orders: {
+              $elemMatch: {
+                createdAt: { $gte: startOfDay, $lte: endOfDay },
+              },
             },
           },
-        },
-        {
-          $sort: { createdAt: -1 },
-        },
-        {
-          $group: {
-            _id: '$email',
-            document: { $first: '$$ROOT' },
-          },
-        },
-        {
-          $replaceRoot: { newRoot: '$document' },
-        },
-        {
-          $limit: skip + responsePerPage,
-        },
-        {
-          $skip: skip,
-        },
-      ]);
+          {},
+          { limit: skip + responsePerPage, skip },
+        )
+        .lean();
+
+      const response = [];
+
+      clients.map((element) => {
+        const lastOrder = element.orders[element.orders.length - 1];
+        response.push({
+          name: element.name,
+          email: element.email,
+          phone: element.phone,
+          orderNumber: lastOrder.orderNumber,
+          status: lastOrder.statusOrder,
+          createdAt: lastOrder.createdAt,
+        });
+      });
+      return response;
     } else if (!date && orderNumber) {
-      return await this.clientModel.aggregate([
-        { $match: { orderNumber } },
-        {
-          $sort: { createdAt: -1 },
-        },
-        {
-          $group: {
-            _id: '$email',
-            document: { $first: '$$ROOT' },
+      console.log('HERE');
+      const clients = await this.clientModel
+        .find(
+          {
+            orders: {
+              $elemMatch: {
+                orderNumber,
+              },
+            },
           },
-        },
-        {
-          $replaceRoot: { newRoot: '$document' },
-        },
-        {
-          $limit: skip + responsePerPage,
-        },
-        {
-          $skip: skip,
-        },
-      ]);
+          {},
+          { limit: skip + responsePerPage, skip },
+        )
+        .lean();
+
+      const response = [];
+
+      clients.map((element) => {
+        const lastOrder = element.orders[element.orders.length - 1];
+        response.push({
+          name: element.name,
+          email: element.email,
+          phone: element.phone,
+          orderNumber: lastOrder.orderNumber,
+          status: lastOrder.statusOrder,
+          createdAt: lastOrder.createdAt,
+        });
+      });
+      return response;
     } else {
-      return await this.clientModel.aggregate([
-        {
-          $sort: { createdAt: -1 },
-        },
-        {
-          $group: {
-            _id: '$email',
-            document: { $first: '$$ROOT' },
-          },
-        },
-        {
-          $replaceRoot: { newRoot: '$document' },
-        },
-        {
-          $limit: skip + responsePerPage,
-        },
-        {
-          $skip: skip,
-        },
-      ]);
+      const clients = await this.clientModel
+        .find({}, {}, { limit: skip + responsePerPage, skip })
+        .lean();
+
+      const response = [];
+
+      clients.map((element) => {
+        const lastOrder = element.orders[element.orders.length - 1];
+        response.push({
+          name: element.name,
+          email: element.email,
+          phone: element.phone,
+          orderNumber: lastOrder.orderNumber,
+          status: lastOrder.statusOrder,
+          createdAt: lastOrder.createdAt,
+        });
+      });
+      return response;
     }
   }
 

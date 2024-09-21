@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
+import { IOrder } from '../types/order.type';
 
 export type ClientDocument = HydratedDocument<Client>;
 @Schema({ versionKey: false, timestamps: true })
@@ -14,10 +15,7 @@ export class Client {
   phone: string;
 
   @Prop()
-  orderNumber: string;
-
-  @Prop()
-  status: string;
+  orders: IOrder[];
 
   @Prop()
   createdAt: Date;

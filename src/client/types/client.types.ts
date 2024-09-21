@@ -1,11 +1,10 @@
 import { Types } from 'mongoose';
-import { BookingStatus } from 'src/booking/types/booking-status';
+import { IOrder } from './order.type';
 
 export interface IClient {
   _id?: Types.ObjectId;
   name: string;
   email: string;
   phone: string;
-  orderNumber: string;
-  status: BookingStatus;
+  orders: IOrder[];
 }

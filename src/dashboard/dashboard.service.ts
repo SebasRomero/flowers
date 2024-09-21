@@ -377,7 +377,7 @@ export class DashboardService {
           email: element.email,
           phone: element.phone,
           orderNumber: lastOrder.orderNumber,
-          status: lastOrder.statusOrder,
+          statusOrder: lastOrder.statusOrder,
           createdAt: lastOrder.createdAt,
         });
       });
@@ -410,7 +410,7 @@ export class DashboardService {
           email: element.email,
           phone: element.phone,
           orderNumber: lastOrder.orderNumber,
-          status: lastOrder.statusOrder,
+          statusOrder: lastOrder.statusOrder,
           createdAt: lastOrder.createdAt,
         });
       });
@@ -440,7 +440,7 @@ export class DashboardService {
           email: element.email,
           phone: element.phone,
           orderNumber: lastOrder.orderNumber,
-          status: lastOrder.statusOrder,
+          statusOrder: lastOrder.statusOrder,
           createdAt: lastOrder.createdAt,
         });
       });
@@ -459,7 +459,7 @@ export class DashboardService {
           email: element.email,
           phone: element.phone,
           orderNumber: lastOrder.orderNumber,
-          status: lastOrder.statusOrder,
+          statusOrder: lastOrder.statusOrder,
           createdAt: lastOrder.createdAt,
         });
       });

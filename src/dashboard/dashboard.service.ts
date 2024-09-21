@@ -345,7 +345,7 @@ export class DashboardService {
   async getClients(query: IQueryGetClient) {
     const { date, orderNumber, page } = query;
     const currentPage = Number(page) || 1;
-    const responsePerPage = 2;
+    const responsePerPage = 8;
     const skip = responsePerPage * (currentPage - 1);
 
     if (date && orderNumber) {

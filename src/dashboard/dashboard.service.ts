@@ -11,6 +11,9 @@ import { ChangeTourPrice } from './dto/change-tour-price.dto';
 import { ChangeArchivedStatusDto } from './dto/change-archived-status.dto';
 import { AddTourDto } from './dto/add-tour.dto';
 import { IOrder } from 'src/client/types/order.type';
+import { BookingStatus } from 'src/booking/types/booking-status';
+import { Cron } from '@nestjs/schedule';
+import { CRON_FIRST_DAY_MONTH } from 'src/constants';
 @Injectable()
 export class DashboardService {
   constructor(
@@ -520,6 +523,25 @@ export class DashboardService {
     return price - (discount / 100) * price;
   }
 
+  @Cron(CRON_FIRST_DAY_MONTH)
+  async checkStatusToArchive() {
+    await this.clientModel.updateMany(
+      {
+        'orders.statusOrder': {
+          $in: [BookingStatus.approved, BookingStatus.rejected],
+        },
+      },
+      { $set: { 'orders.$[elem].isArchived': true } },
+      {
+        arrayFilters: [
+          {
+            'elem.statusOrder': { $in: ['approved', 'rejected'] },
+            'elem.isArchived': { $ne: true },
+          },
+        ],
+      },
+    );
+  }
   /*   async addTour() {
     ToursArray.map(async (element) => {
       await this.tourModel.create({ name: element, price: 0 });

@@ -16,6 +16,7 @@ import { ClientModule } from './client/client.module';
 import { TourModule } from './tour/tour.module';
 import { GatewayModule } from './dashboard/websocket/websocket.module';
 import { PaymentGatewayModule } from './payment-gateway/payment-gateway.module';
+import { ScheduleModule } from '@nestjs/schedule';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -47,6 +48,7 @@ import { PaymentGatewayModule } from './payment-gateway/payment-gateway.module';
     TourModule,
     GatewayModule,
     PaymentGatewayModule,
+    ScheduleModule.forRoot(),
   ],
   providers: [
     { provide: APP_GUARD, useClass: JwtAuthGuard },

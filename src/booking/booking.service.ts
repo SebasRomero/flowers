@@ -12,6 +12,7 @@ import { Client } from 'src/client/schemas/client.schema';
 import { IClient } from 'src/client/types/client.types';
 import { WebsocketGateway } from 'src/dashboard/websocket/websocket.gateway';
 import { IOrder } from 'src/client/types/order.type';
+import { PaymentGatewayService } from 'src/payment-gateway/payment-gateway.service';
 
 @Injectable()
 export class BookingService {
@@ -19,6 +20,7 @@ export class BookingService {
     private utilitiesService: UtilitiesService,
     @InjectModel(Booking.name) private bookingModel: Model<Booking>,
     @InjectModel(Client.name) private clientModel: Model<Client>,
+    private paymentGatewayService: PaymentGatewayService,
     private websocketGateway: WebsocketGateway,
     private mailService: MailService,
   ) {}
@@ -34,23 +36,6 @@ export class BookingService {
     const actualDate = new Date();
     if (date < actualDate)
       throw new HttpException('La fecha debe correcta', HttpStatus.BAD_REQUEST);
-    /*     const refactoredBooking: IBooking = {
-      email: booking.email.toLowerCase(),
-      name: booking.name.toLowerCase(),
-      dateStartingTour: booking.dateStartingTour,
-      numberOfPersons: booking.numberOfPersons,
-      phone: booking.phone,
-      tourName: TourNames[booking.tourName],
-      status: BookingStatus.unrevised,
-      isArchived: false,
-      orderNumber: this.utilitiesService.generateOrderNumber(),
-      changeHistory: [
-        {
-          description: 'El cliente ha solicitado una reserva',
-          date: new Date(),
-        },
-      ],
-    }; */
 
     if (!Object.keys(TourNames).includes(booking.tourName))
       throw new HttpException(
@@ -58,12 +43,16 @@ export class BookingService {
         HttpStatus.BAD_REQUEST,
       );
 
-    /*     const createdBooking = await this.bookingModel.create(refactoredBooking); */
     const order: IOrder = {
       name: booking.name.toLowerCase(),
       email: booking.email.toLowerCase(),
       orderNumber: this.utilitiesService.generateOrderNumber(),
       statusOrder: BookingStatus.unrevised,
+      payment: {
+        token: '',
+        totalPaid: 0,
+        statusPayment: '',
+      },
       dateStartingTour: booking.dateStartingTour,
       numberOfPersons: booking.numberOfPersons,
       phone: booking.phone,
@@ -95,6 +84,14 @@ export class BookingService {
       await this.clientModel.create(client);
     }
 
+    let orderLink: string;
+    if (booking.payImmediately)
+      orderLink = await this.paymentGatewayService.createOrder({
+        email: client.email,
+        numberOfPersons: booking.numberOfPersons,
+        tourName: order.tourName,
+        orderNumber: order.orderNumber,
+      });
     const response = {
       name: client.name,
       changeHistory: order.changeHistory,
@@ -106,6 +103,7 @@ export class BookingService {
       phone: client.phone,
       status: order.statusOrder,
       tourName: TourNames[booking.tourName],
+      orderLink,
     };
 
     return SubmitBookingResponseDto.mapToResponse(response);

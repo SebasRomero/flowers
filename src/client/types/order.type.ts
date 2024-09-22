@@ -10,9 +10,15 @@ export interface IOrder {
   orderId?: string;
   email?: string;
   orderNumber?: string;
-  statusPayment?: string;
+  payment: IPayment;
   isArchived?: boolean;
   statusOrder?: BookingStatus;
   changeHistory?: IAllDescriptionBooking[];
   createdAt?: Date;
+}
+
+export interface IPayment {
+  statusPayment?: string;
+  token?: string;
+  totalPaid?: number;
 }

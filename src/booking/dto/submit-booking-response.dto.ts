@@ -1,5 +1,4 @@
 import { SubmitBookingDto } from './submit-booking.dto';
-import { IBooking } from '../types/booking.interface';
 import { BookingStatus } from '../types/booking-status';
 import { IAllDescriptionBooking } from 'src/dashboard/types/description.interface';
 
@@ -7,18 +6,20 @@ export class SubmitBookingResponseDto extends SubmitBookingDto {
   orderNumber: string;
   status: BookingStatus;
   changeHistory: IAllDescriptionBooking[];
+  orderLink: string;
 
-  static mapToResponse(booking: IBooking): SubmitBookingResponseDto {
+  static mapToResponse(order: any): SubmitBookingResponseDto {
     return {
-      name: booking.name,
-      email: booking.email,
-      phone: booking.phone,
-      numberOfPersons: booking.numberOfPersons,
-      tourName: booking.tourName,
-      dateStartingTour: booking.dateStartingTour,
-      orderNumber: booking.orderNumber,
-      status: booking.status,
-      changeHistory: booking.changeHistory,
+      name: order.name,
+      email: order.email,
+      phone: order.phone,
+      numberOfPersons: order.numberOfPersons,
+      tourName: order.tourName,
+      dateStartingTour: order.dateStartingTour,
+      orderNumber: order.orderNumber,
+      status: order.status,
+      changeHistory: order.changeHistory,
+      orderLink: order.orderLink,
     };
   }
 }

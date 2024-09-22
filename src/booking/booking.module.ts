@@ -15,6 +15,7 @@ import { JwtService } from '@nestjs/jwt';
 import { DashboardService } from 'src/dashboard/dashboard.service';
 import { User, UserSchema } from 'src/users/schemas/user.schema';
 import { Tour, TourSchema } from 'src/tour/schema/tour.schema';
+import { PaymentGatewayService } from 'src/payment-gateway/payment-gateway.service';
 
 @Module({
   imports: [
@@ -36,6 +37,7 @@ import { Tour, TourSchema } from 'src/tour/schema/tour.schema';
     UsersService,
     JwtService,
     DashboardService,
+    PaymentGatewayService,
   ],
   controllers: [BookingController],
 })

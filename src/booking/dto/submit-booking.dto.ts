@@ -34,4 +34,7 @@ export class SubmitBookingDto {
   @ApiProperty({ description: 'The starting date of the tour.', type: Date })
   @IsNotEmpty()
   dateStartingTour: Date;
+
+  @ApiProperty({ description: 'If the client it is go to pay ', type: Boolean })
+  payImmediately?: boolean;
 }

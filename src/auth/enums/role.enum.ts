@@ -6,3 +6,5 @@ export enum Role {
 export enum RoleAgent {
   AGENT = 'agent',
 }
+
+export const RoleAgentArray = ['agent'];

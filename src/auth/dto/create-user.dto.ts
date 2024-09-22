@@ -1,5 +1,6 @@
 import { IsNotEmpty } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
+import { RoleAgent, RoleAgentArray } from '../enums/role.enum';
 
 export class CreateUserDto {
   @ApiProperty({ description: 'El username del usuario', type: String })
@@ -11,7 +12,7 @@ export class CreateUserDto {
   @ApiProperty({ description: 'La contraseña del usuario', type: String })
   @IsNotEmpty()
   password: string;
-  /*   @ApiProperty({ description: 'Los roles del usuario', enum: [RoleUser] })
+  @ApiProperty({ description: 'Los roles del usuario', enum: RoleAgentArray })
   @IsNotEmpty()
-  role: RoleUser[]; */
+  role: RoleAgent[];
 }

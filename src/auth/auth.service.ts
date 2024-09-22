@@ -7,7 +7,7 @@ import { UtilitiesService } from 'src/utilities/utilities.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { LoginResponseDto } from './dto/login-response.dto';
 import { SignUpResponseDto } from './dto/signup-response.dto';
-import { Role } from './enums/role.enum';
+import { Role, RoleAgent } from './enums/role.enum';
 import { IUser } from 'src/users/types/user.interface';
 import { GetUsersDto } from './dto/get-user-response.dto';
 
@@ -21,11 +21,19 @@ export class AuthService {
 
   async createUser(createUser: CreateUserDto): Promise<SignUpResponseDto> {
     const { username, name, password } = createUser;
-    if (!username && !name && !password /*  && !Array.isArray(role) */)
+    if (!username && !name && !password)
       throw new HttpException(
         'Error creando al usuario',
         HttpStatus.BAD_REQUEST,
       );
+
+    createUser.role.map((element) => {
+      if (!Object.keys(RoleAgent).includes(element))
+        throw new HttpException(
+          'El nombre del role debe ser correcto',
+          HttpStatus.BAD_REQUEST,
+        );
+    });
     const user = await this.userModel.findOne({ username: username });
 
     if (user)
@@ -42,7 +50,7 @@ export class AuthService {
       username: username,
       name: name,
       password: hashedPassword,
-      roles: Role.AGENT,
+      roles: createUser.role,
     });
 
     return this.login(createdUser);

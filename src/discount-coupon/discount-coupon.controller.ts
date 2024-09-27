@@ -34,7 +34,7 @@ export class DiscountController {
   }
 
   @Post()
-  @Roles(Role.ADMIN)
+  @Roles(Role.OWNER)
   async createDiscountCoupon(
     @Body() createDiscountCoupon: CreateDiscountCouponDto,
   ): Promise<CreateDiscountCouponResponse> {

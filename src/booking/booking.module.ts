@@ -16,6 +16,12 @@ import { DashboardService } from 'src/dashboard/dashboard.service';
 import { User, UserSchema } from 'src/users/schemas/user.schema';
 import { Tour, TourSchema } from 'src/tour/schema/tour.schema';
 import { PaymentGatewayService } from 'src/payment-gateway/payment-gateway.service';
+import { DiscountCouponService } from 'src/discount-coupon/discount-coupon.service';
+import {
+  DiscountCoupon,
+  DiscountCouponSchema,
+} from 'src/discount-coupon/schema/discount.schema';
+import { TourService } from 'src/tour/tour.service';
 
 @Module({
   imports: [
@@ -24,6 +30,7 @@ import { PaymentGatewayService } from 'src/payment-gateway/payment-gateway.servi
       { name: Client.name, schema: ClientSchema },
       { name: User.name, schema: UserSchema },
       { name: Tour.name, schema: TourSchema },
+      { name: DiscountCoupon.name, schema: DiscountCouponSchema },
     ]),
     MailModule,
     UtilitiesModule,
@@ -38,6 +45,8 @@ import { PaymentGatewayService } from 'src/payment-gateway/payment-gateway.servi
     JwtService,
     DashboardService,
     PaymentGatewayService,
+    DiscountCouponService,
+    TourService,
   ],
   controllers: [BookingController],
 })

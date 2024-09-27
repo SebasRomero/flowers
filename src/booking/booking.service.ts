@@ -13,6 +13,10 @@ import { IClient } from 'src/client/types/client.types';
 import { WebsocketGateway } from 'src/dashboard/websocket/websocket.gateway';
 import { IOrder } from 'src/client/types/order.type';
 import { PaymentGatewayService } from 'src/payment-gateway/payment-gateway.service';
+import { DiscountCouponService } from 'src/discount-coupon/discount-coupon.service';
+import { TourService } from 'src/tour/tour.service';
+import { IDiscountCoupon } from 'src/discount-coupon/types/discount.types';
+import { ITour } from 'src/tour/types/tour.interface';
 
 @Injectable()
 export class BookingService {
@@ -23,6 +27,8 @@ export class BookingService {
     private paymentGatewayService: PaymentGatewayService,
     private websocketGateway: WebsocketGateway,
     private mailService: MailService,
+    private discountCoupon: DiscountCouponService,
+    private toursService: TourService,
   ) {}
 
   findAll(): Promise<Booking[]> {
@@ -34,6 +40,16 @@ export class BookingService {
   ): Promise<SubmitBookingResponseDto> {
     const date = new Date(booking.dateStartingTour);
     const actualDate = new Date();
+    const tour: ITour = await this.toursService.getTour(
+      TourNames[booking.tourName],
+    );
+    let discount: IDiscountCoupon;
+    if (booking.couponCode != null) {
+      discount = await this.discountCoupon.getDiscountCoupon(
+        booking.couponCode,
+      );
+    }
+
     if (date < actualDate)
       throw new HttpException('La fecha debe correcta', HttpStatus.BAD_REQUEST);
 
@@ -42,6 +58,8 @@ export class BookingService {
         'El nombre del tour debe ser correcto',
         HttpStatus.BAD_REQUEST,
       );
+
+    const finalPrice = await this.getFinalPrice(booking, tour, discount);
 
     const order: IOrder = {
       name: booking.name.toLowerCase(),
@@ -58,7 +76,10 @@ export class BookingService {
       phone: booking.phone,
       tourName: TourNames[booking.tourName],
       isArchived: false,
+      couponCode: booking.couponCode ?? null,
       createdAt: new Date(),
+      actualPrice: finalPrice,
+      lastPrice: 0,
       changeHistory: [
         {
           description: 'El cliente ha solicitado una reserva',
@@ -84,11 +105,11 @@ export class BookingService {
       await this.clientModel.create(client);
     }
 
-    let orderLink: string;
+    let orderLink;
     if (booking.payImmediately)
       orderLink = await this.paymentGatewayService.createOrder({
         email: client.email,
-        numberOfPersons: booking.numberOfPersons,
+        price: finalPrice,
         tourName: order.tourName,
         orderNumber: order.orderNumber,
       });
@@ -103,7 +124,8 @@ export class BookingService {
       phone: client.phone,
       status: order.statusOrder,
       tourName: TourNames[booking.tourName],
-      orderLink,
+      orderLink: orderLink ?? null,
+      actualPrice: order.actualPrice,
     };
 
     return SubmitBookingResponseDto.mapToResponse(response);
@@ -131,5 +153,47 @@ export class BookingService {
       numberOfPersons: order.numberOfPersons.toString(),
       dateStartingTour: `${month}/${day}/${year}`,
     });
+  }
+
+  async chooseCorrectDiscount(
+    tourPrice: number,
+    tourDiscount: number,
+    codeCoupon: string,
+    couponDiscount: number,
+  ): Promise<number> {
+    const finalPriceTourDiscount = tourPrice - (tourDiscount / 100) * tourPrice;
+    const finalPriceCouponDiscount =
+      tourPrice - (couponDiscount / 100) * tourPrice;
+
+    if (finalPriceCouponDiscount < finalPriceTourDiscount) {
+      await this.discountCoupon.updateCouponUses(codeCoupon);
+      return finalPriceCouponDiscount;
+    }
+
+    return finalPriceTourDiscount;
+  }
+
+  async getFinalPrice(
+    booking: SubmitBookingDto,
+    tour: ITour,
+    discount: IDiscountCoupon,
+  ): Promise<number> {
+    if (booking.payImmediately && discount) {
+      return (
+        (await this.chooseCorrectDiscount(
+          tour.price,
+          tour.discountPercentage,
+          discount.code,
+          discount.discountPercentage,
+        )) * booking.numberOfPersons
+      );
+    } else if (!booking.payImmediately && discount) {
+      await this.discountCoupon.updateCouponUses(discount.code);
+      return tour.price - (discount.discountPercentage / 100) * tour.price;
+    } else if (booking.payImmediately && !discount) {
+      return tour.discountPrice;
+    } else {
+      return tour.price;
+    }
   }
 }

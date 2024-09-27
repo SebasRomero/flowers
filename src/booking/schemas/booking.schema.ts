@@ -37,6 +37,12 @@ export class Booking {
   @Prop()
   changeHistory: IAllDescriptionBooking[];
 
+  @Prop()
+  lastPrice: number;
+
+  @Prop()
+  actualPrice: number;
+
   @Prop({ isRequired: false })
   createdAt: Date;
 

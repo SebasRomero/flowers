@@ -34,17 +34,13 @@ export class PaymentGatewayService {
     if (!tour)
       throw new HttpException('Tour no encontrado', HttpStatus.BAD_REQUEST);
 
-    const finalPrice = this.calculatePrice(
-      createOrder.numberOfPersons,
-      tour.price,
-    );
     const order = {
       intent: 'CAPTURE',
       purchase_units: [
         {
           amount: {
             currency_code: 'USD',
-            value: finalPrice,
+            value: createOrder.price,
           },
         },
       ],
@@ -138,9 +134,5 @@ export class PaymentGatewayService {
       //SEND EMAIL SAYING THANK YOU AND INFO ORDER
       return 'paid';
     }
-  }
-
-  calculatePrice(numberOfIntegrants: number, price: number) {
-    return numberOfIntegrants * price;
   }
 }

@@ -1,5 +1,5 @@
 export class CreateOrderDto {
-  numberOfPersons: number;
+  price: number;
   tourName: string;
   email: string;
   orderNumber: string;

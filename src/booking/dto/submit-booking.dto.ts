@@ -37,4 +37,7 @@ export class SubmitBookingDto {
 
   @ApiProperty({ description: 'If the client it is go to pay ', type: Boolean })
   payImmediately?: boolean;
+
+  @ApiProperty({ description: 'Coupon code', type: Boolean })
+  couponCode?: string;
 }

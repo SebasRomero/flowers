@@ -15,6 +15,9 @@ export interface IOrder {
   statusOrder?: BookingStatus;
   changeHistory?: IAllDescriptionBooking[];
   createdAt?: Date;
+  couponCode?: string;
+  actualPrice?: number;
+  lastPrice?: number;
 }
 
 export interface IPayment {

@@ -7,6 +7,7 @@ export class SubmitBookingResponseDto extends SubmitBookingDto {
   status: BookingStatus;
   changeHistory: IAllDescriptionBooking[];
   orderLink: string;
+  actualPrice: string;
 
   static mapToResponse(order: any): SubmitBookingResponseDto {
     return {
@@ -20,6 +21,7 @@ export class SubmitBookingResponseDto extends SubmitBookingDto {
       status: order.status,
       changeHistory: order.changeHistory,
       orderLink: order.orderLink,
+      actualPrice: order.actualPrice,
     };
   }
 }

@@ -33,6 +33,10 @@ export class UtilitiesService {
     );
   }
 
+  generateCouponNumber(): string {
+    return randomUUID().substring(0, 6).toUpperCase();
+  }
+
   formatDate(): string {
     const actualDate = new Date();
     const month = actualDate.getMonth();

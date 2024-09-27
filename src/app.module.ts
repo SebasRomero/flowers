@@ -17,6 +17,7 @@ import { TourModule } from './tour/tour.module';
 import { GatewayModule } from './dashboard/websocket/websocket.module';
 import { PaymentGatewayModule } from './payment-gateway/payment-gateway.module';
 import { ScheduleModule } from '@nestjs/schedule';
+import { DiscountCouponModule } from './discount-coupon/discount-coupon.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -49,6 +50,7 @@ import { ScheduleModule } from '@nestjs/schedule';
     GatewayModule,
     PaymentGatewayModule,
     ScheduleModule.forRoot(),
+    DiscountCouponModule,
   ],
   providers: [
     { provide: APP_GUARD, useClass: JwtAuthGuard },

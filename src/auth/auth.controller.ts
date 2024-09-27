@@ -6,6 +6,7 @@ import {
   HttpStatus,
   Param,
   Post,
+  Req,
   Request,
   UseGuards,
 } from '@nestjs/common';
@@ -58,11 +59,11 @@ export class AuthController {
 
   @Delete('delete-user/:id')
   @Roles(Role.ADMIN)
-  async deleteUser(@Param('id') id: string): Promise<any> {
+  async deleteUser(@Param('id') id: string, @Req() req: any): Promise<any> {
     return {
       statusCode: HttpStatus.OK,
       message: 'User deleted',
-      data: await this.authService.deleteUser(id),
+      data: await this.authService.deleteUser(id, req),
     };
   }
 }

@@ -7,7 +7,7 @@ import { UtilitiesService } from 'src/utilities/utilities.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { LoginResponseDto } from './dto/login-response.dto';
 import { SignUpResponseDto } from './dto/signup-response.dto';
-import { Role, RoleAgent } from './enums/role.enum';
+import { Role, RoleAdminAGent } from './enums/role.enum';
 import { IUser } from 'src/users/types/user.interface';
 import { GetUsersDto } from './dto/get-user-response.dto';
 
@@ -28,7 +28,7 @@ export class AuthService {
       );
 
     createUser.role.map((element) => {
-      if (!Object.keys(RoleAgent).includes(element))
+      if (!Object.keys(RoleAdminAGent).includes(element))
         throw new HttpException(
           'El nombre del role debe ser correcto',
           HttpStatus.BAD_REQUEST,
@@ -46,26 +46,52 @@ export class AuthService {
         throw new HttpException('Error en los roles', HttpStatus.BAD_REQUEST);
     }); */
 
+    const roles = [];
+
+    createUser.role.map((element) => {
+      roles.push(Role[element]);
+    });
+
     const createdUser = await this.userModel.create({
       username: username,
       name: name,
       password: hashedPassword,
-      roles: createUser.role,
+      roles: roles,
     });
 
     return this.login(createdUser);
   }
 
-  async deleteUser(userId: string): Promise<IUser> {
-    //VALIDATE IF ANOTHER ADMIN CAN DELETE OTHER ADMIN
-    const response = await this.userModel.findByIdAndDelete(userId).lean();
+  async deleteUser(userId: string, req: any): Promise<IUser> {
+    const ctxUserAdmin = req.user.roles.some((element) =>
+      element.includes(Role.ADMIN),
+    );
+    const ctxUserOwner = req.user.roles.some((element) =>
+      element.includes(Role.OWNER),
+    );
+    const user = await this.userModel.findById(userId);
+    if (!user)
+      throw new HttpException(
+        'No se encontró el usuario',
+        HttpStatus.BAD_REQUEST,
+      );
+    const isAdmin = user.roles.some((element) => element.includes(Role.ADMIN));
+    const isOwner = user.roles.some((element) => element.includes(Role.OWNER));
+    if (isAdmin && ctxUserAdmin && !ctxUserOwner)
+      throw new HttpException(
+        'No se pudo eliminar el usuario admin',
+        HttpStatus.BAD_REQUEST,
+      );
+    else if (!isOwner) {
+      const response = await this.userModel.findByIdAndDelete(userId).lean();
 
-    if (response)
-      return {
-        name: response.name,
-        username: response.username,
-        roles: response.roles,
-      };
+      if (response)
+        return {
+          name: response.name,
+          username: response.username,
+          roles: response.roles,
+        };
+    }
 
     throw new HttpException(
       'No se pudo eliminar el usuario',

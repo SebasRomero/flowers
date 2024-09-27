@@ -12,8 +12,9 @@ export enum RoleOwner {
   OWNER = 'owner',
 }
 
-export enum RoleAdmin {
+export enum RoleAdminAGent {
   ADMIN = 'admin',
+  AGENT = 'agent',
 }
 
 export const RoleAgentArray = ['agent'];

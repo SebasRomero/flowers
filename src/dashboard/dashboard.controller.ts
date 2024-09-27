@@ -73,7 +73,7 @@ export class DashboardController {
   }
 
   @Put('tours')
-  @Roles(Role.AGENT)
+  @Roles(Role.ADMIN)
   async changePriceTour(
     @Body() changeTourPrice: ChangeTourPrice,
   ): Promise<GetToursResponse> {
